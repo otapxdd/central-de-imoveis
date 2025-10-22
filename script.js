@@ -948,17 +948,58 @@ function carregarAprovacao() {
 }
 
 function visualizarImovel(id) {
-  const imovel = dadosAtuais.imoveis.find((i) => i.id === id)
-  console.log(imovel)
-  if (!imovel) return
+    // --- Para Debugar (pode apagar depois) ---
+    console.log("ID recebido:", id, "(Tipo:", typeof id, ")");
+    if (dadosAtuais.imoveis.length > 0) {
+        console.log("ID no 1º imóvel:", dadosAtuais.imoveis[0].id, "(Tipo:", typeof dadosAtuais.imoveis[0].id, ")");
+    }
+    // ----------------------------------------
 
-  const corpoModal = document.getElementById("corpoModal")
-  corpoModal.innerHTML = `
+    // AQUI ESTÁ A CORREÇÃO (== em vez de ===)
+    const imovel = dadosAtuais.imoveis.find((i) => i.id == id);
+    
+    console.log("Imóvel encontrado:", imovel); // Agora deve mostrar o objeto
+
+    if (!imovel) {
+        mostrarNotificacao("ERRO: Imóvel não encontrado (ID: " + id + ")", "erro");
+        return;
+    }
+
+    // Tenta pegar as coordenadas
+    const lat = parseFloat(imovel.latitude);
+    const lng = parseFloat(imovel.longitude);
+    const temCoordenadasValidas = !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90;
+
+    // Prepara o HTML do mapa (ou o placeholder)
+    let htmlLocalizacao = '';
+
+    if (temCoordenadasValidas) {
+        htmlLocalizacao = `
+            <div style="margin-top: 1.5rem;">
+                <h4 style="margin-bottom: 0.75rem;">Localização</h4>
+                <div id="mapa-no-modal" style="height: 300px; width: 100%; border-radius: 8px; background: #f0f0f0;">
+                    </div>
+            </div>
+        `;
+    } else {
+        htmlLocalizacao = `
+            <div style="margin-top: 1.5rem;">
+                <h4 style="margin-bottom: 0.75rem;">Localização</h4>
+                <div style="background: var(--fundo-secundario); padding: 1rem; border-radius: 8px; text-align: center;">
+                    <i class="fas fa-map-marker-alt" style="font-size: 2rem; color: var(--cor-primaria);"></i>
+                    <p style="margin-top: 0.5rem; color: var(--texto-secundario);">${imovel.cidade}</p>
+                </div>
+            </div>
+        `;
+    }
+
+    // Monta o corpo do modal
+    const corpoModal = document.getElementById("corpoModal");
+    corpoModal.innerHTML = `
         <div class="galeria-modal">
             <img src="/placeholder.svg?height=200&width=300" alt="Foto 1">
             <img src="/placeholder.svg?height=200&width=300" alt="Foto 2">
             <img src="/placeholder.svg?height=200&width=300" alt="Foto 3">
-            <img src="/placeholder.svg?height=200&width=300" alt="Foto 4">
         </div>
         
         <div class="info-modal">
@@ -984,7 +1025,7 @@ function visualizarImovel(id) {
             </div>
             <div class="item-info-modal">
                 <span class="label-info-modal">Valor:</span>
-                <span class="valor-info-modal"><strong>R$ ${imovel.valor.toLocaleString("pt-BR")}</strong></span>
+                <span class="valor-info-modal"><strong>R$ ${Number(imovel.valor).toLocaleString("pt-BR")}</strong></span>
             </div>
             <div class="item-info-modal">
                 <span class="label-info-modal">Quartos:</span>
@@ -1007,21 +1048,22 @@ function visualizarImovel(id) {
         <div style="margin-top: 1.5rem;">
             <h4 style="margin-bottom: 0.75rem;">Descrição</h4>
             <p style="color: var(--texto-secundario); line-height: 1.6;">
-                ${obterDescricaoImovel(imovel)}
+                ${imovel.descricao || obterDescricaoImovel(imovel)}
             </p>
         </div>
         
-        <div style="margin-top: 1.5rem;">
-            <h4 style="margin-bottom: 0.75rem;">Localização</h4>
-            <div style="background: var(--fundo-secundario); padding: 1rem; border-radius: 8px; text-align: center;">
-                <i class="fas fa-map-marker-alt" style="font-size: 2rem; color: var(--cor-primaria);"></i>
-                <p style="margin-top: 0.5rem; color: var(--texto-secundario);">${imovel.cidade}, SP</p>
-            </div>
-        </div>
-    `
+        ${htmlLocalizacao}
+    `;
 
-  document.getElementById("tituloModal").textContent = imovel.nome
-  abrirModal("modalImovel")
+    document.getElementById("tituloModal").textContent = imovel.nome;
+    abrirModal("modalImovel");
+
+    // CHAMA O MAPA
+    if (temCoordenadasValidas) {
+        setTimeout(() => {
+            carregarMapaDoModal(lat, lng);
+        }, 150); 
+    }
 }
 
 function obterDescricaoImovel(imovel) {
