@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Central de Imóveis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cor-primaria: #d4a843;
+            --cor-primaria-escura: #b8922a;
+            --cor-secundaria: #2c3e50;
+            --fundo-primario: #ffffff;
+            --fundo-secundario: #f5f5f5;
+            --texto-primario: #212121;
+            --texto-secundario: #757575;
+            --cor-borda: #e0e0e0;
+            --sombra-media: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .container-login {
+            background: var(--fundo-primario);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .lado-esquerdo {
+            background: linear-gradient(135deg, var(--cor-primaria) 0%, var(--cor-primaria-escura) 100%);
+            padding: 3rem;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .logo-login {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo-login i {
+            font-size: 3rem;
+        }
+
+        .logo-login h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .lado-esquerdo h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .lado-esquerdo p {
+            font-size: 1.125rem;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        .lado-direito {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .abas-login {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--cor-borda);
+        }
+
+        .aba-login {
+            flex: 1;
+            padding: 1rem 0.5rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--texto-secundario);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .aba-login.active {
+            color: var(--cor-primaria);
+            border-bottom-color: var(--cor-primaria);
+        }
+
+        .formulario-login {
+            display: none;
+        }
+
+        .formulario-login.active {
+            display: block;
+        }
+
+        .titulo-formulario {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--texto-primario);
+            margin-bottom: 1.5rem;
+        }
+
+        .grupo-input {
+            margin-bottom: 1.5rem;
+        }
+
+        .grupo-input label {
+            display: block;
+            font-weight: 500;
+            color: var(--texto-primario);
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .input-icone {
+            position: relative;
+        }
+
+        .input-icone i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--texto-secundario);
+        }
+
+        .input-login {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 3rem;
+            border: 2px solid var(--cor-borda);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: "Inter", sans-serif;
+        }
+
+        .input-login:focus {
+            outline: none;
+            border-color: var(--cor-primaria);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: var(--cor-primaria);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-login:hover {
+            background: var(--cor-primaria-escura);
+            transform: translateY(-2px);
+            box-shadow: var(--sombra-media);
+        }
+
+        .mensagem-erro {
+            background: #ffebee;
+            color: #c62828;
+            padding: 0.875rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+            font-size: 0.875rem;
+        }
+
+        .mensagem-erro.active {
+            display: block;
+        }
+
+        .link-ajuda {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--texto-secundario);
+            font-size: 0.875rem;
+        }
+
+        .link-ajuda a {
+            color: var(--cor-primaria);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container-login {
+                grid-template-columns: 1fr;
+            }
+
+            .lado-esquerdo {
+                padding: 2rem;
+            }
+
+            .lado-direito {
+                padding: 2rem;
+            }
+            
+            .aba-login {
+                font-size: 0.75rem;
+                padding: 0.875rem 0.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-login">
+        <div class="lado-esquerdo">
+            <div class="logo-login">
+                <i class="fas fa-building"></i>
+                <h1>Central de Imóveis</h1>
+            </div>
+            <h2>Bem-vindo de volta!</h2>
+            <p>Gerencie seus imóveis de forma simples e eficiente. Acesse sua conta para continuar.</p>
+        </div>
+
+        <div class="lado-direito">
+            <div class="abas-login">
+                <button class="aba-login active" onclick="trocarAba('admin')">
+                    <i class="fas fa-user-shield"></i> Administrador
+                </button>
+                <button class="aba-login" onclick="trocarAba('proprietario')">
+                    <i class="fas fa-key"></i> Proprietário
+                </button>
+                <button class="aba-login" onclick="trocarAba('inquilino')">
+                    <i class="fas fa-user"></i> Inquilino
+                </button>
+            </div>
+
+            <!-- Formulário Admin -->
+            <form id="form-admin" class="formulario-login active" onsubmit="fazerLoginAdmin(event)">
+                <h3 class="titulo-formulario">Login Administrativo</h3>
+                
+                <div class="mensagem-erro" id="erro-admin">
+                    <i class="fas fa-exclamation-circle"></i> Usuário ou senha incorretos
+                </div>
+
+                <div class="grupo-input">
+                    <label for="usuario-admin">Usuário</label>
+                    <div class="input-icone">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="usuario-admin" class="input-login" placeholder="Digite seu usuário" required>
+                    </div>
+                </div>
+
+                <div class="grupo-input">
+                    <label for="senha-admin">Senha</label>
+                    <div class="input-icone">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="senha-admin" class="input-login" placeholder="Digite sua senha" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+
+                <div class="link-ajuda">
+                    Esqueceu sua senha? <a href="#">Recuperar senha</a>
+                </div>
+            </form>
+
+            <!-- Formulário Proprietário -->
+            <form id="form-proprietario" class="formulario-login" onsubmit="fazerLoginProprietario(event)">
+                <h3 class="titulo-formulario">Área do Proprietário</h3>
+                
+                <div class="mensagem-erro" id="erro-proprietario">
+                    <i class="fas fa-exclamation-circle"></i> Código do imóvel ou senha incorretos
+                </div>
+
+                <div class="grupo-input">
+                    <label for="codigo-imovel-prop">Código do Imóvel</label>
+                    <div class="input-icone">
+                        <i class="fas fa-home"></i>
+                        <input type="text" id="codigo-imovel-prop" class="input-login" placeholder="Ex: IMV-001" required>
+                    </div>
+                </div>
+
+                <div class="grupo-input">
+                    <label for="senha-proprietario">Senha</label>
+                    <div class="input-icone">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="senha-proprietario" class="input-login" placeholder="Digite sua senha" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Acessar Área do Proprietário
+                </button>
+
+                <div class="link-ajuda">
+                    Não tem acesso? <a href="#">Entre em contato</a>
+                </div>
+            </form>
+
+            <!-- Formulário Inquilino -->
+            <form id="form-inquilino" class="formulario-login" onsubmit="fazerLoginInquilino(event)">
+                <h3 class="titulo-formulario">Área do Inquilino</h3>
+                
+                <div class="mensagem-erro" id="erro-inquilino">
+                    <i class="fas fa-exclamation-circle"></i> Código do imóvel ou senha incorretos
+                </div>
+
+                <div class="grupo-input">
+                    <label for="codigo-imovel">Código do Imóvel</label>
+                    <div class="input-icone">
+                        <i class="fas fa-home"></i>
+                        <input type="text" id="codigo-imovel" class="input-login" placeholder="Ex: IMV-001" required>
+                    </div>
+                </div>
+
+                <div class="grupo-input">
+                    <label for="senha-inquilino">Senha</label>
+                    <div class="input-icone">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="senha-inquilino" class="input-login" placeholder="Digite sua senha" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Acessar Área do Inquilino
+                </button>
+
+                <div class="link-ajuda">
+                    Não tem acesso? <a href="#">Entre em contato</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function trocarAba(tipo) {
+            document.querySelectorAll('.aba-login').forEach(aba => {
+                aba.classList.remove('active');
+            });
+            event.target.closest('.aba-login').classList.add('active');
+
+            document.querySelectorAll('.formulario-login').forEach(form => {
+                form.classList.remove('active');
+            });
+
+            if (tipo === 'admin') {
+                document.getElementById('form-admin').classList.add('active');
+            } else if (tipo === 'proprietario') {
+                document.getElementById('form-proprietario').classList.add('active');
+            } else {
+                document.getElementById('form-inquilino').classList.add('active');
+            }
+
+            document.querySelectorAll('.mensagem-erro').forEach(msg => {
+                msg.classList.remove('active');
+            });
+        }
+
+        function fazerLoginAdmin(event) {
+            event.preventDefault();
+            const usuario = document.getElementById('usuario-admin').value;
+            const senha = document.getElementById('senha-admin').value;
+
+            if (usuario === 'admin' && senha === 'admin123') {
+                const sessao = {
+                    tipo: 'admin',
+                    usuario: usuario,
+                    timestamp: new Date().getTime()
+                };
+                localStorage.setItem('sessao_central_imoveis', JSON.stringify(sessao));
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('erro-admin').classList.add('active');
+            }
+        }
+
+        function fazerLoginProprietario(event) {
+            event.preventDefault();
+            const codigo = document.getElementById('codigo-imovel-prop').value.toUpperCase();
+            const senha = document.getElementById('senha-proprietario').value;
+
+            if (codigo === 'IMV-001' && senha === 'proprietario123') {
+                const sessao = {
+                    tipo: 'proprietario',
+                    codigoImovel: codigo,
+                    timestamp: new Date().getTime()
+                };
+                localStorage.setItem('sessao_central_imoveis', JSON.stringify(sessao));
+                window.location.href = 'proprietario.html';
+            } else {
+                document.getElementById('erro-proprietario').classList.add('active');
+            }
+        }
+
+        function fazerLoginInquilino(event) {
+            event.preventDefault();
+            const codigo = document.getElementById('codigo-imovel').value.toUpperCase();
+            const senha = document.getElementById('senha-inquilino').value;
+
+            if (codigo === 'IMV-001' && senha === 'inquilino123') {
+                const sessao = {
+                    tipo: 'inquilino',
+                    codigoImovel: codigo,
+                    timestamp: new Date().getTime()
+                };
+                localStorage.setItem('sessao_central_imoveis', JSON.stringify(sessao));
+                window.location.href = 'inquilino.html';
+            } else {
+                document.getElementById('erro-inquilino').classList.add('active');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const sessaoStr = localStorage.getItem('sessao_central_imoveis');
+            if (sessaoStr) {
+                const sessao = JSON.parse(sessaoStr);
+                const agora = new Date().getTime();
+                const umDia = 24 * 60 * 60 * 1000;
+
+                if (agora - sessao.timestamp < umDia) {
+                    if (sessao.tipo === 'admin') {
+                        window.location.href = 'index.html';
+                    } else if (sessao.tipo === 'proprietario') {
+                        window.location.href = 'proprietario.html';
+                    } else if (sessao.tipo === 'inquilino') {
+                        window.location.href = 'inquilino.html';
+                    }
+                } else {
+                    localStorage.removeItem('sessao_central_imoveis');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

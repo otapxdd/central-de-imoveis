@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Inquilino - Central de Imóveis</title>
+    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <script src="auth.js"></script>
+    <script>
+        verificarAutenticacao('inquilino');
+    </script>
+
+    <aside class="barra-lateral" id="barraLateral">
+        <div class="cabecalho-barra-lateral">
+            <div class="logo">
+                <i class="fas fa-building"></i>
+                <span>Área do Inquilino</span>
+            </div>
+            <button class="alternar-barra-lateral" id="alternarBarraLateral">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <nav class="navegacao-barra-lateral">
+            <a href="#meu-imovel" class="item-navegacao active" data-pagina="meu-imovel">
+                <i class="fas fa-home"></i>
+                <span>Meu Imóvel</span>
+            </a>
+            <a href="#boletos" class="item-navegacao" data-pagina="boletos">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>Boletos</span>
+            </a>
+            <a href="#financiamento" class="item-navegacao" data-pagina="financiamento">
+                <i class="fas fa-chart-line"></i>
+                <span>Financiamento</span>
+            </a>
+            <a href="#manutencao" class="item-navegacao" data-pagina="manutencao">
+                <i class="fas fa-tools"></i>
+                <span>Manutenção</span>
+            </a>
+            <a href="#documentos" class="item-navegacao" data-pagina="documentos">
+                <i class="fas fa-folder"></i>
+                <span>Documentos</span>
+            </a>
+            <a href="#" class="item-navegacao" onclick="fazerLogout(event)" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sair</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="conteudo-principal">
+        <header class="barra-superior">
+            <div class="barra-superior-esquerda">
+                <button class="alternar-menu-mobile" id="alternarMenuMobile">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="titulo-pagina" id="tituloPagina">Meu Imóvel</h1>
+            </div>
+            <div class="barra-superior-direita">
+                <button class="alternar-tema" id="alternarTema" title="Alternar tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="menu-usuario">
+                    <img src="/placeholder.svg?height=40&width=40" alt="Inquilino" class="avatar-usuario">
+                    <span class="nome-usuario" id="nomeInquilino">Inquilino</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="container-conteudo">
+            <!-- Página Meu Imóvel -->
+            <section id="pagina-meu-imovel" class="conteudo-pagina active">
+                <div class="grade-estatisticas">
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #D4A843;">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Código do Imóvel</h3>
+                            <p class="numero-estatistica" style="font-size: 1.5rem;">IMV-001</p>
+                        </div>
+                    </div>
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #4CAF50;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Status</h3>
+                            <p class="numero-estatistica" style="font-size: 1.25rem;">Em Dia</p>
+                        </div>
+                    </div>
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #2196F3;">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Próximo Vencimento</h3>
+                            <p class="numero-estatistica" style="font-size: 1.25rem;">05/11/2024</p>
+                        </div>
+                    </div>
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #FF9800;">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Valor Mensal</h3>
+                            <p class="numero-estatistica" style="font-size: 1.25rem;">R$ 2.500</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cartao-dashboard">
+                    <h3>Informações do Imóvel</h3>
+                    <div class="info-modal">
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Endereço:</span>
+                            <span class="valor-info-modal">Rua das Flores, 123 - Centro</span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Cidade:</span>
+                            <span class="valor-info-modal">São Paulo - SP</span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Tipo:</span>
+                            <span class="valor-info-modal">Apartamento</span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Quartos:</span>
+                            <span class="valor-info-modal">3</span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Banheiros:</span>
+                            <span class="valor-info-modal">2</span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Área:</span>
+                            <span class="valor-info-modal">120m²</span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Data de Início:</span>
+                            <span class="valor-info-modal">01/01/2024</span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Duração do Contrato:</span>
+                            <span class="valor-info-modal">30 meses</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Página Boletos -->
+            <section id="pagina-boletos" class="conteudo-pagina">
+                <div class="cabecalho-pagina">
+                    <h2>Meus Boletos</h2>
+                </div>
+
+                <div class="container-tabela">
+                    <table class="tabela-dados">
+                        <thead>
+                            <tr>
+                                <th>Referência</th>
+                                <th>Vencimento</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Novembro/2024</strong></td>
+                                <td>05/11/2024</td>
+                                <td><strong>R$ 2.500,00</strong></td>
+                                <td><span class="badge badge-aviso">Pendente</span></td>
+                                <td>
+                                    <button class="btn btn-primario btn-icone" title="Baixar Boleto">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="btn btn-secundario btn-icone" title="Ver Código de Barras">
+                                        <i class="fas fa-barcode"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Outubro/2024</strong></td>
+                                <td>05/10/2024</td>
+                                <td><strong>R$ 2.500,00</strong></td>
+                                <td><span class="badge badge-sucesso">Pago</span></td>
+                                <td>
+                                    <button class="btn btn-secundario btn-icone" title="Ver Comprovante">
+                                        <i class="fas fa-receipt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Setembro/2024</strong></td>
+                                <td>05/09/2024</td>
+                                <td><strong>R$ 2.500,00</strong></td>
+                                <td><span class="badge badge-sucesso">Pago</span></td>
+                                <td>
+                                    <button class="btn btn-secundario btn-icone" title="Ver Comprovante">
+                                        <i class="fas fa-receipt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Agosto/2024</strong></td>
+                                <td>05/08/2024</td>
+                                <td><strong>R$ 2.500,00</strong></td>
+                                <td><span class="badge badge-sucesso">Pago</span></td>
+                                <td>
+                                    <button class="btn btn-secundario btn-icone" title="Ver Comprovante">
+                                        <i class="fas fa-receipt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Página Financiamento -->
+            <section id="pagina-financiamento" class="conteudo-pagina">
+                <div class="cabecalho-pagina">
+                    <h2>Financiamento</h2>
+                </div>
+
+                <div class="grade-estatisticas">
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #2196F3;">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Valor Total</h3>
+                            <p class="numero-estatistica">R$ 850.000</p>
+                        </div>
+                    </div>
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #4CAF50;">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Valor Pago</h3>
+                            <p class="numero-estatistica">R$ 85.000</p>
+                        </div>
+                    </div>
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #FF9800;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Saldo Devedor</h3>
+                            <p class="numero-estatistica">R$ 765.000</p>
+                        </div>
+                    </div>
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #9C27B0;">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Parcelas Restantes</h3>
+                            <p class="numero-estatistica">306</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cartao-dashboard">
+                    <h3>Detalhes do Financiamento</h3>
+                    <div class="info-modal">
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Banco:</span>
+                            <span class="valor-info-modal">Banco Exemplo S.A.</span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Tipo de Financiamento:</span>
+                            <span class="valor-info-modal">SAC (Sistema de Amortização Constante)</span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Taxa de Juros:</span>
+                            <span class="valor-info-modal">8,5% ao ano</span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Prazo Total:</span>
+                            <span class="valor-info-modal">360 meses (30 anos)</span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Parcelas Pagas:</span>
+                            <span class="valor-info-modal">54 de 360</span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Valor da Parcela Atual:</span>
+                            <span class="valor-info-modal"><strong>R$ 2.500,00</strong></span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Data de Início:</span>
+                            <span class="valor-info-modal">01/01/2020</span>
+                        </div>
+                        <div class="item-info-modal">
+                            <span class="label-info-modal">Previsão de Término:</span>
+                            <span class="valor-info-modal">01/01/2050</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Página Manutenção -->
+            <section id="pagina-manutencao" class="conteudo-pagina">
+                <div class="cabecalho-pagina">
+                    <h2>Solicitações de Manutenção</h2>
+                    <button class="btn btn-primario" onclick="mostrarNotificacao('Função em desenvolvimento')">
+                        <i class="fas fa-plus"></i> Nova Solicitação
+                    </button>
+                </div>
+
+                <div class="container-tabela">
+                    <table class="tabela-dados">
+                        <thead>
+                            <tr>
+                                <th>Protocolo</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>#MNT-001</strong></td>
+                                <td>Elétrica</td>
+                                <td>Troca de lâmpadas no corredor</td>
+                                <td>20/10/2024</td>
+                                <td><span class="badge badge-sucesso">Concluído</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>#MNT-002</strong></td>
+                                <td>Hidráulica</td>
+                                <td>Vazamento na torneira da cozinha</td>
+                                <td>25/10/2024</td>
+                                <td><span class="badge badge-aviso">Em Andamento</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Página Documentos -->
+            <section id="pagina-documentos" class="conteudo-pagina">
+                <div class="cabecalho-pagina">
+                    <h2>Meus Documentos</h2>
+                </div>
+
+                <div class="grade-categorias">
+                    <div class="cartao-categoria">
+                        <div class="cabecalho-categoria">
+                            <div class="icone-categoria">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                        </div>
+                        <h4 class="nome-categoria">Contrato de Locação</h4>
+                        <p class="contagem-categoria">Assinado em 01/01/2024</p>
+                        <button class="btn btn-secundario" style="width: 100%; margin-top: 1rem;">
+                            <i class="fas fa-download"></i> Baixar
+                        </button>
+                    </div>
+
+                    <div class="cartao-categoria">
+                        <div class="cabecalho-categoria">
+                            <div class="icone-categoria">
+                                <i class="fas fa-file-invoice"></i>
+                            </div>
+                        </div>
+                        <h4 class="nome-categoria">Vistoria de Entrada</h4>
+                        <p class="contagem-categoria">Realizada em 01/01/2024</p>
+                        <button class="btn btn-secundario" style="width: 100%; margin-top: 1rem;">
+                            <i class="fas fa-download"></i> Baixar
+                        </button>
+                    </div>
+
+                    <div class="cartao-categoria">
+                        <div class="cabecalho-categoria">
+                            <div class="icone-categoria">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                        </div>
+                        <h4 class="nome-categoria">Manual do Condomínio</h4>
+                        <p class="contagem-categoria">Atualizado em 15/03/2024</p>
+                        <button class="btn btn-secundario" style="width: 100%; margin-top: 1rem;">
+                            <i class="fas fa-download"></i> Baixar
+                        </button>
+                    </div>
+
+                    <div class="cartao-categoria">
+                        <div class="cabecalho-categoria">
+                            <div class="icone-categoria">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                        </div>
+                        <h4 class="nome-categoria">Comprovantes de Pagamento</h4>
+                        <p class="contagem-categoria">10 documentos</p>
+                        <button class="btn btn-secundario" style="width: 100%; margin-top: 1rem;">
+                            <i class="fas fa-folder-open"></i> Ver Todos
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div class="notificacao" id="notificacao">
+        <i class="fas fa-check-circle"></i>
+        <span id="mensagemNotificacao"></span>
+    </div>
+
+    <script>
+        // Navegação entre páginas
+        document.querySelectorAll('.item-navegacao').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (this.getAttribute('onclick')) return;
+                
+                e.preventDefault();
+                const pagina = this.getAttribute('data-pagina');
+                
+                document.querySelectorAll('.item-navegacao').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+                
+                document.querySelectorAll('.conteudo-pagina').forEach(conteudo => conteudo.classList.remove('active'));
+                document.getElementById(`pagina-${pagina}`).classList.add('active');
+                
+                const titulos = {
+                    'meu-imovel': 'Meu Imóvel',
+                    'boletos': 'Boletos',
+                    'financiamento': 'Financiamento',
+                    'manutencao': 'Manutenção',
+                    'documentos': 'Documentos'
+                };
+                document.getElementById('tituloPagina').textContent = titulos[pagina];
+                
+                document.getElementById('barraLateral').classList.remove('active');
+            });
+        });
+
+        // Menu mobile
+        document.getElementById('alternarMenuMobile').addEventListener('click', () => {
+            document.getElementById('barraLateral').classList.toggle('active');
+        });
+
+        // Alternar tema
+        document.getElementById('alternarTema').addEventListener('click', function() {
+            document.body.classList.toggle('tema-escuro');
+            const icone = this.querySelector('i');
+            if (document.body.classList.contains('tema-escuro')) {
+                icone.classList.remove('fa-moon');
+                icone.classList.add('fa-sun');
+            } else {
+                icone.classList.remove('fa-sun');
+                icone.classList.add('fa-moon');
+            }
+        });
+
+        // Notificação
+        function mostrarNotificacao(mensagem) {
+            const notificacao = document.getElementById('notificacao');
+            document.getElementById('mensagemNotificacao').textContent = mensagem;
+            notificacao.classList.add('active');
+            setTimeout(() => notificacao.classList.remove('active'), 3000);
+        }
+
+        // Carregar código do imóvel
+        window.addEventListener('DOMContentLoaded', () => {
+            const sessaoStr = localStorage.getItem('sessao_central_imoveis');
+            if (sessaoStr) {
+                const sessao = JSON.parse(sessaoStr);
+                if (sessao.codigoImovel) {
+                    document.getElementById('nomeInquilino').textContent = sessao.codigoImovel;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

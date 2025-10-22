@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central de Imóveis - Painel Administrativo</title>
+    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Adicionando proteção de autenticação -->
+    <script src="auth.js"></script>
+    <script>
+        // Verificar autenticação antes de carregar a página
+        verificarAutenticacao('admin');
+    </script>
+
+    <aside class="barra-lateral" id="barraLateral">
+        <div class="cabecalho-barra-lateral">
+            <div class="logo">
+                <i class="fas fa-building"></i>
+                <span>Central de Imóveis</span>
+            </div>
+            <button class="alternar-barra-lateral" id="alternarBarraLateral">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <nav class="navegacao-barra-lateral">
+            <a href="#dashboard" class="item-navegacao active" data-pagina="dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#imoveis" class="item-navegacao" data-pagina="imoveis">
+                <i class="fas fa-home"></i>
+                <span>Gestão de Imóveis</span>
+            </a>
+            <a href="#aprovacao" class="item-navegacao" data-pagina="aprovacao">
+                <i class="fas fa-check-circle"></i>
+                <span>Aprovação de Imóveis</span>
+            </a>
+            <a href="#usuarios" class="item-navegacao" data-pagina="usuarios">
+                <i class="fas fa-users"></i>
+                <span>Usuários</span>
+            </a>
+            <a href="#mensagens" class="item-navegacao" data-pagina="mensagens">
+                <i class="fas fa-envelope"></i>
+                <span>Mensagens</span>
+            </a>
+            <a href="#mapa" class="item-navegacao" data-pagina="mapa">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>Mapa</span>
+            </a>
+            <a href="#categorias" class="item-navegacao" data-pagina="categorias">
+                <i class="fas fa-tags"></i>
+                <span>Categorias</span>
+            </a>
+            <!-- <a href="#agendamentos" class="item-navegacao" data-pagina="agendamentos">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Agendamentos</span>
+            </a> -->
+            <a href="#financeiro" class="item-navegacao" data-pagina="financeiro">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Financeiro</span>
+            </a>
+            <a href="#configuracoes" class="item-navegacao" data-pagina="configuracoes">
+                <i class="fas fa-cog"></i>
+                <span>Configurações</span>
+            </a>
+            <!-- Adicionando botão de logout -->
+            <a href="#" class="item-navegacao" onclick="fazerLogout(event)" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sair</span>
+            </a>
+        </nav>
+    </aside>
+
+
+    <main class="conteudo-principal">
+        <header class="barra-superior">
+            <div class="barra-superior-esquerda">
+                <button class="alternar-menu-mobile" id="alternarMenuMobile">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="titulo-pagina" id="tituloPagina">Dashboard</h1>
+            </div>
+            <div class="barra-superior-direita">
+                <button class="alternar-tema" id="alternarTema" title="Alternar tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="menu-usuario">
+                    <img src="/placeholder.svg?height=40&width=40" alt="Admin" class="avatar-usuario">
+                    <span class="nome-usuario">Admin</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </header>
+
+
+        <div class="container-conteudo">
+            <section id="pagina-dashboard" class="conteudo-pagina active">
+                <div class="grade-estatisticas">
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #D4A843;">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Total de Imóveis</h3>
+                            <p class="numero-estatistica">247</p>
+                        </div>
+                    </div>
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #FF9800;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Pendentes</h3>
+                            <p class="numero-estatistica">18</p>
+                        </div>
+                    </div>
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #4CAF50;">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Aprovados</h3>
+                            <p class="numero-estatistica">229</p>
+                        </div>
+                    </div>
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #2196F3;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Usuários</h3>
+                            <p class="numero-estatistica">156</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grade-dashboard">
+                    <div class="cartao-dashboard">
+                        <h3>Imóveis por Tipo</h3>
+                        <canvas id="graficoTipo"></canvas>
+                    </div>
+                    <div class="cartao-dashboard">
+                        <h3>Imóveis por Cidade</h3>
+                        <canvas id="graficoCidade"></canvas>
+                    </div>
+                </div>
+
+                <div class="cartao-dashboard">
+                    <h3>Últimas Ações</h3>
+                    <div class="lista-atividades" id="listaAtividades"></div>
+                </div>
+            </section>
+
+
+            <section id="pagina-imoveis" class="conteudo-pagina">
+                <div class="cabecalho-pagina">
+                    <h2>Gestão de Imóveis</h2>
+                    <button class="btn btn-primario" onclick="abrirModalAdicionarImovel()">
+                        <i class="fas fa-plus"></i> Adicionar Imóvel
+                    </button>
+                </div>
+
+                <div class="barra-filtros">
+                    <select id="filtroStatus" class="select-filtro">
+                        <option value="">Todos os Status</option>
+                        <option value="pendente">Pendente</option>
+                        <option value="aprovado">Aprovado</option>
+                        <option value="reprovado">Reprovado</option>
+                    </select>
+                    <select id="filtroTipo" class="select-filtro">
+                        <option value="">Todos os Tipos</option>
+                        <option value="casa">Casa</option>
+                        <option value="apartamento">Apartamento</option>
+                        <option value="terreno">Terreno</option>
+                        <option value="comercial">Comercial</option>
+                    </select>
+                    <select id="filtroCidade" class="select-filtro">
+                        <option value="">Todas as Cidades</option>
+                        <option value="São Paulo">São Paulo</option>
+                        <option value="Rio de Janeiro">Rio de Janeiro</option>
+                        <option value="Campinas">Campinas</option>
+                        <option value="Santos">Santos</option>
+                    </select>
+                    <input type="text" id="buscarImovel" class="input-busca" placeholder="Buscar por nome ou código...">
+                </div>
+
+                <div class="container-tabela">
+                    <table class="tabela-dados">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nome</th>
+                                <th>Proprietário</th>
+                                <th>Tipo</th>
+                                <th>Cidade</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabelaImoveis"></tbody>
+                    </table>
+                </div>
+            </section>
+
+
+            <section id="pagina-aprovacao" class="conteudo-pagina">
+                <div class="cabecalho-pagina">
+                    <h2>Aprovação de Imóveis</h2>
+                    <span class="badge badge-aviso" id="contagemPendentes">18 Pendentes</span>
+                </div>
+
+                <div class="grade-cartoes" id="gradeAprovacao"></div>
+            </section>
+
+            <section id="pagina-usuarios" class="conteudo-pagina">
+                <div class="cabecalho-pagina">
+                    <h2>Usuários</h2>
+                    <button class="btn btn-primario">
+                        <i class="fas fa-user-plus"></i> Adicionar Usuário
+                    </button>
+                </div>
+
+                <div class="barra-filtros">
+                    <select id="filtroTipoUsuario" class="select-filtro">
+                        <option value="">Todos os Tipos</option>
+                        <option value="usuario">Usuário</option>
+                        <option value="corretor">Corretor</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                    <input type="text" id="buscarUsuario" class="input-busca" placeholder="Buscar usuário...">
+                </div>
+
+                <div class="container-tabela">
+                    <table class="tabela-dados">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Tipo</th>
+                                <th>Imóveis</th>
+                                <th>Data Cadastro</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabelaUsuarios"></tbody>
+                    </table>
+                </div>
+            </section>
+
+
+            <section id="pagina-mensagens" class="conteudo-pagina">
+                <div class="cabecalho-pagina">
+                    <h2>Mensagens</h2>
+                    <span class="badge badge-primario" id="contagemNaoLidas">5 Não Lidas</span>
+                </div>
+
+                <div class="container-mensagens">
+                    <div class="lista-mensagens" id="listaMensagens"></div>
+                </div>
+            </section>
+
+            <section id="pagina-mapa" class="conteudo-pagina">
+                <div class="cabecalho-pagina">
+                    <h2>Mapa de Imóveis</h2>
+                </div>
+
+                <div class="barra-filtros">
+                    <select id="filtroMapaCidade" class="select-filtro">
+                        <option value="">Todas as Cidades</option>
+                        <option value="São Paulo">São Paulo</option>
+                        <option value="Rio de Janeiro">Rio de Janeiro</option>
+                        <option value="Campinas">Campinas</option>
+                    </select>
+                    <select id="filtroMapaTipo" class="select-filtro">
+                        <option value="">Todos os Tipos</option>
+                        <option value="casa">Casa</option>
+                        <option value="apartamento">Apartamento</option>
+                        <option value="terreno">Terreno</option>
+                    </select>
+                </div>
+
+                <div class="container-mapa">
+                    <div class="placeholder-mapa" id="visualizacaoMapa">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <p>Mapa de Imóveis</p>
+                        <div class="marcadores-mapa" id="marcadoresMapa"></div>
+                    </div>
+                </div>
+
+                <div class="lista-imoveis-mapa" id="listaImoveisMapa"></div>
+            </section>
+
+            <section id="pagina-categorias" class="conteudo-pagina">
+                <div class="cabecalho-pagina">
+                    <h2>Categorias e Tipos</h2>
+                    <button class="btn btn-primario" onclick="abrirModalAdicionarCategoria()">
+                        <i class="fas fa-plus"></i> Adicionar Categoria
+                    </button>
+                </div>
+
+                <div class="grade-categorias" id="gradeCategorias"></div>
+            </section>
+
+            <!-- <section id="pagina-agendamentos" class="conteudo-pagina">
+                <div class="cabecalho-pagina">
+                    <h2>Agendamentos de Visitas</h2>
+                    <button class="btn btn-primario">
+                        <i class="fas fa-plus"></i> Novo Agendamento
+                    </button>
+                </div>
+
+                <div class="container-tabela">
+                    <table class="tabela-dados">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Imóvel</th>
+                                <th>Data</th>
+                                <th>Horário</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabelaAgendamentos"></tbody>
+                    </table>
+                </div>
+            </section> -->
+
+            <section id="pagina-financeiro" class="conteudo-pagina">
+                <div class="cabecalho-pagina">
+                    <h2>Financeiro</h2>
+                    <button class="btn btn-secundario">
+                        <i class="fas fa-download"></i> Exportar Relatório
+                    </button>
+                </div>
+
+                <div class="grade-estatisticas">
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #4CAF50;">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Faturamento Mensal</h3>
+                            <p class="numero-estatistica">R$ 125.450</p>
+                        </div>
+                    </div>
+                    <div class="cartao-estatistica">
+                        <div class="icone-estatistica" style="background: #2196F3;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="info-estatistica">
+                            <h3>Comissões</h3>
+                            <p class="numero-estatistica">R$ 18.720</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cartao-dashboard">
+                    <h3>Faturamento Mensal</h3>
+                    <canvas id="graficoFaturamento"></canvas>
+                </div>
+
+                <div class="cartao-dashboard">
+                    <h3>Comissões Recentes</h3>
+                    <div class="container-tabela">
+                        <table class="tabela-dados">
+                            <thead>
+                                <tr>
+                                    <th>Corretor</th>
+                                    <th>Imóvel</th>
+                                    <th>Valor</th>
+                                    <th>Comissão</th>
+                                    <th>Data</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corpoTabelaComissoes"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="pagina-configuracoes" class="conteudo-pagina">
+                <div class="cabecalho-pagina">
+                    <h2>Configurações</h2>
+                </div>
+
+                <div class="container-configuracoes">
+                    <div class="cartao-configuracoes">
+                        <h3>Dados da Empresa</h3>
+                        <form class="formulario-configuracoes">
+                            <div class="grupo-formulario">
+                                <label>Nome da Empresa</label>
+                                <input type="text" value="Central de Imóveis" class="input-formulario">
+                            </div>
+                            <div class="grupo-formulario">
+                                <label>Email</label>
+                                <input type="email" value="contato@centraldeimoveis.com.br" class="input-formulario">
+                            </div>
+                            <div class="grupo-formulario">
+                                <label>Telefone</label>
+                                <input type="tel" value="(19) 99876-4321" class="input-formulario">
+                            </div>
+                            <div class="grupo-formulario">
+                                <label>Endereço</label>
+                                <input type="text" value="Rua das Flores, 123 - Centro" class="input-formulario">
+                            </div>
+                            <button type="submit" class="btn btn-primario">Salvar Alterações</button>
+                        </form>
+                    </div>
+
+                    <div class="cartao-configuracoes">
+                        <h3>Aparência</h3>
+                        <div class="seletor-tema">
+                            <label class="opcao-tema">
+                                <input type="radio" name="tema" value="claro" checked>
+                                <span>Tema Claro</span>
+                            </label>
+                            <label class="opcao-tema">
+                                <input type="radio" name="tema" value="escuro">
+                                <span>Tema Escuro</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="cartao-configuracoes">
+                        <h3>Permissões</h3>
+                        <p class="texto-secundario">Gerenciamento de permissões de usuários</p>
+                        <select class="input-formulario" disabled>
+                            <option>Admin - Acesso Total</option>
+                            <option>Corretor - Acesso Limitado</option>
+                            <option>Usuário - Apenas Visualização</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+
+    <div class="modal" id="modalImovel">
+        <div class="conteudo-modal modal-grande">
+            <div class="cabecalho-modal">
+                <h2 id="tituloModal">Detalhes do Imóvel</h2>
+                <button class="fechar-modal" onclick="fecharModal('modalImovel')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="corpo-modal" id="corpoModal"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="modalMensagem">
+        <div class="conteudo-modal">
+            <div class="cabecalho-modal">
+                <h2 id="tituloModalMensagem">Mensagem</h2>
+                <button class="fechar-modal" onclick="fecharModal('modalMensagem')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="corpo-modal" id="corpoModalMensagem"></div>
+            <div class="rodape-modal">
+                <button class="btn btn-secundario" onclick="fecharModal('modalMensagem')">Fechar</button>
+                <button class="btn btn-primario">
+                    <i class="fas fa-reply"></i> Responder
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modalConfirmacao">
+        <div class="conteudo-modal modal-pequeno">
+            <div class="cabecalho-modal">
+                <h2 id="tituloModalConfirmacao">Confirmar Ação</h2>
+                <button class="fechar-modal" onclick="fecharModal('modalConfirmacao')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="corpo-modal" id="corpoModalConfirmacao"></div>
+            <div class="rodape-modal">
+                <button class="btn btn-secundario" onclick="fecharModal('modalConfirmacao')">Cancelar</button>
+                <button class="btn btn-primario" id="btnModalConfirmacao">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notificacao" id="notificacao">
+        <i class="fas fa-check-circle"></i>
+        <span id="mensagemNotificacao"></span>
+    </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFaqoKZx6uBpP15lvS30RJ5ZRcU_jWuio&callback=initMap" async defer></script>
+    <script src="script.js"></script>
+</body>
+</html>
