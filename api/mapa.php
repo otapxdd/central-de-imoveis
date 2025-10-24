@@ -8,7 +8,7 @@ $tipo_nome = $_GET['tipo'] ?? '';
 
 $sql = "
     SELECT 
-        i.id as id,
+        i.id_imovel as id,
         i.codigo,
         i.nome,
         i.cidade,
@@ -41,7 +41,6 @@ try {
     $stmt->execute($params);
     $imoveis = $stmt->fetchAll();
     
-    // Retorna os imóveis como JSON
     echo json_encode($imoveis);
 
 } catch (\PDOException $e) {

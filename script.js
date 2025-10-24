@@ -440,7 +440,6 @@ let mapaGoogle
 let marcadoresAtuais = []
 let infoWindowGoogle
 
-// Declaração da variável google para evitar erro de lint
 window.google = window.google || {}
 
 // ========================================
@@ -483,14 +482,12 @@ async function carregarDadosIniciais() {
             dadosAtuais[ep.key] = data
             console.info(`Dados carregados: ${ep.key} (${data.length})`)
           } else if (data && typeof data === 'object') {
-            // alguns endpoints podem retornar objeto com chave (ex: { items: [...] })
             if (Array.isArray(data.items)) dadosAtuais[ep.key] = data.items
           }
         })
         .catch((e) => console.warn(`Erro ao parsear JSON de ${ep.url}:`, e))
     })
 
-    // Aguarda pequeno tempo para as atribuições acima terminarem (parsing async)
     setTimeout(() => {
       carregarDashboard()
       carregarImoveis()
@@ -822,7 +819,7 @@ function renderizarTabelaImoveis(imoveis) {
     .map(
       (imovel) => `
         <tr>
-            <td><strong>${imovel.codigo}</strong></td>
+            <td><strong>${imovel.id}</strong></td>
             <td>${imovel.nome}</td>
             <td>${imovel.proprietario}</td>
             <td><span class="badge badge-info">${imovel.tipo}</span></td>
@@ -836,9 +833,6 @@ function renderizarTabelaImoveis(imoveis) {
             <td>
                 <button class="btn btn-icone btn-secundario" onclick="visualizarImovel(${imovel.id})" title="Ver Detalhes">
                     <i class="fas fa-eye"></i>
-                </button>
-                <button class="btn btn-icone btn-secundario" onclick="editarImovel(${imovel.id})" title="Editar">
-                    <i class="fas fa-edit"></i>
                 </button>
                 ${
                   imovel.status === "pendente"
@@ -947,30 +941,60 @@ function carregarAprovacao() {
     .join("")
 }
 
+function carregarMapaDoModal(lat, lng) {
+    const elementoMapa = document.getElementById('mapa-no-modal');
+    
+    if (!elementoMapa) {
+        console.warn("Elemento 'mapa-no-modal' não encontrado.");
+        return; 
+    }
+
+    const posicao = { lat: parseFloat(lat), lng: parseFloat(lng) };
+
+    const map = new google.maps.Map(elementoMapa, {
+        zoom: 16,
+        center: posicao,
+        disableDefaultUI: true,
+        gestureHandling: 'cooperative'
+    });
+
+    const houseSvgPath = "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z";
+    const iconeCasa = {
+        path: houseSvgPath,
+        fillColor: "#D4A843",
+        fillOpacity: 1,
+        strokeWeight: 0,
+        scale: 1.5,
+        anchor: new google.maps.Point(12, 24)
+    };
+
+    new google.maps.Marker({
+        position: posicao,
+        map: map,
+        icon: iconeCasa
+    });
+}
+
 function visualizarImovel(id) {
-    // --- Para Debugar (pode apagar depois) ---
     console.log("ID recebido:", id, "(Tipo:", typeof id, ")");
     if (dadosAtuais.imoveis.length > 0) {
         console.log("ID no 1º imóvel:", dadosAtuais.imoveis[0].id, "(Tipo:", typeof dadosAtuais.imoveis[0].id, ")");
     }
     // ----------------------------------------
 
-    // AQUI ESTÁ A CORREÇÃO (== em vez de ===)
     const imovel = dadosAtuais.imoveis.find((i) => i.id == id);
     
-    console.log("Imóvel encontrado:", imovel); // Agora deve mostrar o objeto
+    console.log("Imóvel encontrado:", imovel);
 
     if (!imovel) {
         mostrarNotificacao("ERRO: Imóvel não encontrado (ID: " + id + ")", "erro");
         return;
     }
 
-    // Tenta pegar as coordenadas
     const lat = parseFloat(imovel.latitude);
     const lng = parseFloat(imovel.longitude);
     const temCoordenadasValidas = !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90;
 
-    // Prepara o HTML do mapa (ou o placeholder)
     let htmlLocalizacao = '';
 
     if (temCoordenadasValidas) {
@@ -993,7 +1017,6 @@ function visualizarImovel(id) {
         `;
     }
 
-    // Monta o corpo do modal
     const corpoModal = document.getElementById("corpoModal");
     corpoModal.innerHTML = `
         <div class="galeria-modal">
@@ -1058,7 +1081,6 @@ function visualizarImovel(id) {
     document.getElementById("tituloModal").textContent = imovel.nome;
     abrirModal("modalImovel");
 
-    // CHAMA O MAPA
     if (temCoordenadasValidas) {
         setTimeout(() => {
             carregarMapaDoModal(lat, lng);
@@ -1084,31 +1106,65 @@ function editarImovel(id) {
 }
 
 function aprovarImovel(id) {
-  mostrarModalConfirmacao("Aprovar Imóvel", "Tem certeza que deseja aprovar este imóvel?", () => {
-    const imovel = dadosAtuais.imoveis.find((i) => i.id === id)
-    if (imovel) {
-      imovel.status = "aprovado"
-      carregarImoveis()
-      carregarAprovacao()
-      mostrarNotificacao("Imóvel aprovado com sucesso!")
+  mostrarModalConfirmacao("Aprovar Imóvel", "Tem certeza que deseja aprovar este imóvel?", async () => {
+    
+    try {
+      const response = await fetch('api/aprovarImovel.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: id })
+      });
+
+      const resultado = await response.json();
+
+      if (!response.ok) {
+        throw new Error(resultado.erro || 'Erro ao conectar com o servidor.');
+      }
+      carregarImoveis();
+      carregarAprovacao();
+      mostrarNotificacao("Imóvel aprovado com sucesso!");
+
+    } catch (error) {
+      console.error('Erro ao aprovar imóvel:', error);
+      mostrarNotificacao(`Erro ao aprovar: ${error.message}`, 'erro'); 
     }
-  })
+  });
 }
 
 function reprovarImovel(id) {
   mostrarModalConfirmacao(
     "Reprovar Imóvel",
     "Tem certeza que deseja reprovar este imóvel? Esta ação pode ser revertida posteriormente.",
-    () => {
-      const imovel = dadosAtuais.imoveis.find((i) => i.id === id)
-      if (imovel) {
-        imovel.status = "reprovado"
-        carregarImoveis()
-        carregarAprovacao()
-        mostrarNotificacao("Imóvel reprovado", "aviso")
+    async () => {
+      
+      try {
+        const response = await fetch('api/reprovarImovel.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: id })
+        });
+
+        const resultado = await response.json();
+
+        if (!response.ok) {
+          throw new Error(resultado.erro || 'Erro ao conectar com o servidor.');
+        }
+
+        carregarImoveis();
+        carregarAprovacao();
+        
+        mostrarNotificacao("Imóvel reprovado", "aviso");
+
+      } catch (error) {
+        console.error('Erro ao reprovar imóvel:', error);
+        mostrarNotificacao(`Erro ao reprovar: ${error.message}`, 'erro');
       }
     },
-  )
+  );
 }
 
 function abrirModalAdicionarImovel() {
@@ -1401,48 +1457,41 @@ function focarNoMapa(lat, lng) {
 // ========================================
 // FUNÇÕES DE CATEGORIAS
 // ========================================
-function carregarCategorias() {
-  const grade = document.getElementById("gradeCategorias")
-  grade.innerHTML = dadosAtuais.categorias
-    .map(
-      (cat) => `
-        <div class="cartao-categoria">
-            <div class="cabecalho-categoria">
-                <div class="icone-categoria">
-                    <i class="fas ${cat.icone}"></i>
-                </div>
-                <div class="acoes-categoria">
-                    <button class="btn btn-icone btn-secundario" onclick="editarCategoria(${cat.id})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-icone btn-perigo" onclick="excluirCategoria(${cat.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-            <h4 class="nome-categoria">${cat.nome}</h4>
-            <p class="contagem-categoria">${cat.quantidade} imóveis</p>
-        </div>
-    `,
-    )
-    .join("")
-}
+// function carregarCategorias() {
+//   const grade = document.getElementById("gradeCategorias")
+//   grade.innerHTML = dadosAtuais.categorias
+//     .map(
+//       (cat) => `
+//         <div class="cartao-categoria">
+//             <div class="cabecalho-categoria">
+//                 <div class="icone-categoria">
+//                     <i class="fas ${cat.icone}"></i>
+//                 </div>
+//                 <div class="acoes-categoria">
+//                     <button class="btn btn-icone btn-secundario" onclick="editarCategoria(${cat.id})">
+//                         <i class="fas fa-edit"></i>
+//                     </button>
+//                     <button class="btn btn-icone btn-perigo" onclick="excluirCategoria(${cat.id})">
+//                         <i class="fas fa-trash"></i>
+//                     </button>
+//                 </div>
+//             </div>
+//             <h4 class="nome-categoria">${cat.nome}</h4>
+//             <p class="contagem-categoria">${cat.quantidade} imóveis</p>
+//         </div>
+//     `,
+//     )
+//     .join("")
+// }
 
-function abrirModalAdicionarCategoria() {
-  mostrarNotificacao("Função de adicionar categoria em desenvolvimento")
-}
+// function abrirModalAdicionarCategoria() {
+// }
 
-function editarCategoria(id) {
-  mostrarNotificacao("Função de editar categoria em desenvolvimento")
-}
+// function editarCategoria(id) {
+// }
 
-function excluirCategoria(id) {
-  mostrarModalConfirmacao("Excluir Categoria", "Tem certeza que deseja excluir esta categoria?", () => {
-    dadosAtuais.categorias = dadosAtuais.categorias.filter((c) => c.id !== id)
-    carregarCategorias()
-    mostrarNotificacao("Categoria excluída com sucesso!")
-  })
-}
+// function excluirCategoria(id) {
+// }
 
 // ========================================
 // FUNÇÕES DE AGENDAMENTOS
@@ -1501,22 +1550,22 @@ function cancelarAgendamento(id) {
 // ========================================
 // FUNÇÕES FINANCEIRAS
 // ========================================
-function carregarFinanceiro() {
-  const tbody = document.getElementById("corpoTabelaComissoes")
-  tbody.innerHTML = dadosSimulados.comissoes
-    .map(
-      (com) => `
-        <tr>
-            <td><strong>${com.corretor}</strong></td>
-            <td>${com.imovel}</td>
-            <td>R$ ${com.valor.toLocaleString("pt-BR")}</td>
-            <td><strong style="color: var(--cor-sucesso);">R$ ${com.comissao.toLocaleString("pt-BR")}</strong></td>
-            <td>${formatarData(com.data)}</td>
-        </tr>
-    `,
-    )
-    .join("")
-}
+// function carregarFinanceiro() {
+//   const tbody = document.getElementById("corpoTabelaComissoes")
+//   tbody.innerHTML = dadosSimulados.comissoes
+//     .map(
+//       (com) => `
+//         <tr>
+//             <td><strong>${com.corretor}</strong></td>
+//             <td>${com.imovel}</td>
+//             <td>R$ ${com.valor.toLocaleString("pt-BR")}</td>
+//             <td><strong style="color: var(--cor-sucesso);">R$ ${com.comissao.toLocaleString("pt-BR")}</strong></td>
+//             <td>${formatarData(com.data)}</td>
+//         </tr>
+//     `,
+//     )
+//     .join("")
+// }
 
 // ========================================
 // FUNÇÕES UTILITÁRIAS
