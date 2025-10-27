@@ -399,7 +399,7 @@
                     timestamp: new Date().getTime()
                 };
                 localStorage.setItem('sessao_central_imoveis', JSON.stringify(sessao));
-                window.location.href = 'index.html';
+                window.location.href = 'dashboard.html';
             } else {
                 document.getElementById('erro-admin').classList.add('active');
             }
@@ -417,7 +417,7 @@
                     timestamp: new Date().getTime()
                 };
                 localStorage.setItem('sessao_central_imoveis', JSON.stringify(sessao));
-                window.location.href = 'proprietario.html';
+                window.location.href = 'locador.html';
             } else {
                 document.getElementById('erro-proprietario').classList.add('active');
             }
@@ -435,7 +435,7 @@
                     timestamp: new Date().getTime()
                 };
                 localStorage.setItem('sessao_central_imoveis', JSON.stringify(sessao));
-                window.location.href = 'inquilino.html';
+                window.location.href = 'locatario.html';
             } else {
                 document.getElementById('erro-inquilino').classList.add('active');
             }
@@ -450,11 +450,11 @@
 
                 if (agora - sessao.timestamp < umDia) {
                     if (sessao.tipo === 'admin') {
-                        window.location.href = 'index.html';
+                        window.location.href = 'dashboard.html';
                     } else if (sessao.tipo === 'proprietario') {
-                        window.location.href = 'proprietario.html';
+                        window.location.href = 'locador.html';
                     } else if (sessao.tipo === 'inquilino') {
-                        window.location.href = 'inquilino.html';
+                        window.location.href = 'locatario.html';
                     }
                 } else {
                     localStorage.removeItem('sessao_central_imoveis');

@@ -109,7 +109,7 @@
                         </div>
                         <div class="info-estatistica">
                             <h3>Total de Imóveis</h3>
-                            <p class="numero-estatistica">247</p>
+                            <p class="numero-estatistica" id="stat-total">0</p>
                         </div>
                     </div>
                     <div class="cartao-estatistica">
@@ -118,7 +118,7 @@
                         </div>
                         <div class="info-estatistica">
                             <h3>Pendentes</h3>
-                            <p class="numero-estatistica">18</p>
+                            <p class="numero-estatistica" id="stat-pendentes">0</p>
                         </div>
                     </div>
                     <div class="cartao-estatistica">
@@ -127,7 +127,7 @@
                         </div>
                         <div class="info-estatistica">
                             <h3>Aprovados</h3>
-                            <p class="numero-estatistica">229</p>
+                            <p class="numero-estatistica" id="stat-aprovados">0</p>
                         </div>
                     </div>
                     <div class="cartao-estatistica">
@@ -136,7 +136,7 @@
                         </div>
                         <div class="info-estatistica">
                             <h3>Reprovados</h3>
-                            <p class="numero-estatistica">156</p>
+                            <p class="numero-estatistica" id="stat-reprovados">0</p>
                         </div>
                     </div>
                 </div>
@@ -209,6 +209,148 @@
                     </table>
                 </div>
             </section>
+
+            <div id="modal-imovel-overlay">
+                <div class="modal-conteudo">
+                    
+                    <div class="modal-cabecalho">
+                        <h2>Cadastrar Novo Imóvel</h2>
+                        <button onclick="fecharModalImovel()" class="modal-fechar-btn">
+                            &times;
+                        </button>
+                    </div>
+
+                    <form id="form-imovel" class="modal-corpo">
+                        <div class="form-grid">
+                            
+                            <div class="grid-span-2">
+                                <label for="proprietario-nome">Nome do Proprietário</label>
+                                <input type="text" id="proprietario-nome" name="proprietario_nome" placeholder="Nome do cliente">
+                            </div>
+
+                            <div>
+                                <label for="proprietario-email">E-mail do Proprietário</label>
+                                <input type="email" id="proprietario-email" name="proprietario_email" placeholder="email@cliente.com">
+                            </div>
+
+                            <div>
+                                <label for="proprietario-telefone">Telefone do Proprietário</label>
+                                <input type="tel" id="proprietario-telefone" name="proprietario_telefone" placeholder="(11) 99999-9999">
+                            </div>
+                            
+                            <div class="grid-span-2">
+                                <label for="imovel-cep">CEP</label>
+                                <div style="display: flex; align-items: center;">
+                                    <input type="text" id="imovel-cep" name="cep" placeholder="00000-000" style="flex: 1;">
+                                    <span id="cep-loading" style="display: none; margin-left: 10px; font-size: 0.9rem; color: #555;">Buscando...</span>
+                                </div>
+                            </div>
+                            <div class="grid-span-2">
+                                <label for="imovel-endereco">Endereço (Rua)</label>
+                                <input type="text" id="imovel-endereco" name="endereco" placeholder="Rua, Avenida, etc...">
+                            </div>
+
+                            <div>
+                                <label for="imovel-numero">Número</label>
+                                <input type="text" id="imovel-numero" name="numero" placeholder="123">
+                            </div>
+
+                            <div>
+                                <label for="imovel-bairro">Bairro</label>
+                                <input type="text" id="imovel-bairro" name="bairro" placeholder="Bairro do imóvel">
+                            </div>
+
+                            <div>
+                                <label for="imovel-cidade">Cidade</label>
+                                <input type="text" id="imovel-cidade" name="cidade" placeholder="Cidade do imóvel">
+                            </div>
+
+                            <hr class="grid-span-2">
+
+                            <div>
+                                <label for="imovel-tipo">Tipo do Imóvel</label>
+                                <select id="imovel-tipo" name="id_tipo_imovel">
+                                    <option value="">Selecione o Tipo</option>
+                                    <option value="1">Residência</option>
+                                    <option value="2">Apartamento</option>
+                                    <option value="3">Comércio</option>
+                                    <option value="4">Terreno</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="imovel-finalidade">Finalidade</label>
+                                <select id="imovel-finalidade" name="finalidade">
+                                    <option value="">Selecione a Finalidade</option>
+                                    <option value="Venda">Venda</option>
+                                    <option value="Aluguel">Aluguel</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="imovel-valor-pretendido">Valor Pretendido (R$)</label>
+                                <input type="number" id="imovel-valor-pretendido" name="valor_pretendido" placeholder="1500.00" step="0.01">
+                            </div>
+
+                            <div>
+                                <label for="imovel-quartos">Quartos</label>
+                                <input type="number" id="imovel-quartos" name="quartos" value="0" min="0">
+                            </div>
+                            
+                            <div>
+                                <label for="imovel-banheiros">Banheiros</label>
+                                <input type="number" id="imovel-banheiros" name="banheiros" value="0" min="0">
+                            </div>
+
+                            <div>
+                                <label for="imovel-area">Área (m²)</label>
+                                <input type="number" id="imovel-area" name="area_m2" value="0" min="0">
+                            </div>
+
+                            <div>
+                                <label for="imovel-status">Status</label>
+                                <select id="imovel-status" name="status">
+                                    <option value="Pendente">Pendente</option>
+                                    <option value="Aprovado">Aprovado</option>
+                                </select>
+                            </div>
+
+                            <div class="grid-span-2">
+                                <label for="imovel-descricao">Descrição do Imóvel</label>
+                                <textarea id="imovel-descricao" name="descricao" rows="4" placeholder="Características e/ou outras informações do Imóvel..."></textarea>
+                            </div>
+
+                            <div class="grid-span-2">
+                                <label>Fotos</label>
+                                <div class="upload-area">
+                                    <div>
+                                        <i class="fas fa-image"></i>
+                                        <p>
+                                            <label for="file-upload" class="upload-area-label">
+                                                <span>Clique para enviar</span>
+                                                <input id="file-upload" name="fotos[]" type="file" multiple>
+                                            </label>
+                                            ou arraste e solte
+                                        </p>
+                                        <p class="info">PNG, JPG, GIF até 10MB</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+
+                    <div class="modal-rodape">
+                        <button onclick="fecharModalImovel()" class="btn btn-secondary">
+                            Cancelar
+                        </button>
+                        <button type="submit" form="form-imovel" class="btn btn-primary">
+                            Salvar Imóvel
+                        </button>
+                    </div>
+
+                </div>
+            </div>
 
 
             <section id="pagina-aprovacao" class="conteudo-pagina">
@@ -496,6 +638,7 @@
         <span id="mensagemNotificacao"></span>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFaqoKZx6uBpP15lvS30RJ5ZRcU_jWuio&callback=initMap" async defer></script>
     <script src="script.js"></script>
 </body>

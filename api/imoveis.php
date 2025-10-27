@@ -7,7 +7,6 @@ try {
     $sql = "
         SELECT 
             i.id_imovel as id,
-            i.codigo,
             i.nome,
             i.cidade,
             i.quartos,
@@ -19,13 +18,12 @@ try {
             i.latitude,
             i.longitude,
             
-            u.nome as proprietario,
+            nome_proprietario as proprietario,
             t.nome as tipo,
             
             COALESCE(i.valor_venda, i.valor_aluguel) as valor
             
         FROM imoveis i
-        JOIN usuarios u ON i.id_proprietario = u.id_usuario
         JOIN tipos_imovel t ON i.id_tipo_imovel = t.id_tipo_imovel
         ORDER BY i.id_imovel DESC
     ";

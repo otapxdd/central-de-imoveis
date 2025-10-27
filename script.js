@@ -559,21 +559,17 @@ function configurarEventos() {
   const alternarTema = document.getElementById("alternarTema")
   alternarTema.addEventListener("click", alternarTemaEscuro)
 
-  // Filtros de Imóveis
   document.getElementById("filtroStatus")?.addEventListener("change", filtrarImoveis)
   document.getElementById("filtroTipo")?.addEventListener("change", filtrarImoveis)
   document.getElementById("filtroCidade")?.addEventListener("change", filtrarImoveis)
   document.getElementById("buscarImovel")?.addEventListener("input", filtrarImoveis)
 
-  // Filtros de Usuários
   document.getElementById("filtroTipoUsuario")?.addEventListener("change", filtrarUsuarios)
   document.getElementById("buscarUsuario")?.addEventListener("input", filtrarUsuarios)
 
-  // Filtros de Mapa
   document.getElementById("filtroMapaCidade")?.addEventListener("change", filtrarImoveisMapa)
   document.getElementById("filtroMapaTipo")?.addEventListener("change", filtrarImoveisMapa)
 
-  // Formulário de Configurações
   const formularioConfiguracoes = document.querySelector(".formulario-configuracoes")
   if (formularioConfiguracoes) {
     formularioConfiguracoes.addEventListener("submit", (e) => {
@@ -582,7 +578,6 @@ function configurarEventos() {
     })
   }
 
-  // Seletor de Tema
   const opcoesTema = document.querySelectorAll('input[name="tema"]')
   opcoesTema.forEach((opcao) => {
     opcao.addEventListener("change", function () {
@@ -659,151 +654,167 @@ function navegarParaPagina(pagina) {
   document.getElementById("barraLateral").classList.remove("active")
 }
 
-function carregarDashboard() {
-  carregarListaAtividades()
-  criarGraficos()
+/////////////////////////////////////////////////
+
+const graficosAtivos = {
+    graficoTipo: null,
+    graficoCidade: null
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    carregarDashboard();
+});
+
+async function carregarDashboard() {
+    try {
+        const response = await fetch('api/imoveis.php');
+        if (!response.ok) {
+            throw new Error(`Erro ao buscar dados: ${response.statusText}`);
+        }
+        const imoveis = await response.json();
+
+        const stats = {
+            total: imoveis.length,
+            pendentes: 0,
+            aprovados: 0,
+            reprovados: 0
+        };
+
+        const agregados = {
+            tipos: {}, 
+            cidades: {}
+        };
+
+        for (const imovel of imoveis) {
+            switch (imovel.status) {
+                case 'pendente':
+                    stats.pendentes++;
+                    break;
+                case 'aprovado':
+                    stats.aprovados++;
+                    break;
+                case 'reprovado':
+                    stats.reprovados++;
+                    break;
+            }
+
+            if (imovel.tipo) {
+                agregados.tipos[imovel.tipo] = (agregados.tipos[imovel.tipo] || 0) + 1;
+            }
+
+            if (imovel.cidade) {
+                agregados.cidades[imovel.cidade] = (agregados.cidades[imovel.cidade] || 0) + 1;
+            }
+        }
+
+        document.getElementById('stat-total').textContent = stats.total;
+        document.getElementById('stat-pendentes').textContent = stats.pendentes;
+        document.getElementById('stat-aprovados').textContent = stats.aprovados;
+        document.getElementById('stat-reprovados').textContent = stats.reprovados;
+
+        criarGraficos(agregados.tipos, agregados.cidades);
+
+        carregarListaAtividades();
+
+    } catch (error) {
+        console.error("Erro ao carregar o dashboard:", error);
+        document.getElementById('pagina-dashboard').innerHTML = 
+            `<p style="color: red;">Não foi possível carregar os dados do dashboard. Verifique o console para mais detalhes.</p>`;
+    }
 }
 
 function carregarListaAtividades() {
-  const listaAtividades = document.getElementById("listaAtividades")
-  listaAtividades.innerHTML = dadosSimulados.atividades
-    .map(
-      (atividade) => `
-        <div class="item-atividade">
-            <div class="icone-atividade" style="background: ${atividade.cor};">
-                <i class="fas ${atividade.icone}"></i>
-            </div>
-            <div class="conteudo-atividade">
-                <p>${atividade.mensagem}</p>
-                <span class="tempo-atividade">${atividade.tempo}</span>
-            </div>
-        </div>
-    `,
-    )
-    .join("")
+    const listaAtividades = document.getElementById("listaAtividades");
+    listaAtividades.innerHTML = "<p>Nenhuma atividade recente registrada.</p>";
 }
 
-function criarGraficos() {
-  criarGraficoPizza("graficoTipo", ["Casa", "Apartamento", "Terreno", "Comercial"], [5, 8, 3, 4])
-  criarGraficoBarras("graficoCidade", ["São Paulo", "Campinas", "Santos", "Rio de Janeiro"], [8, 5, 4, 1])
-  criarGraficoLinha(
-    "graficoFaturamento",
-    ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
-    [85000, 92000, 78000, 105000, 98000, 125000],
-  )
+function criarGraficos(dadosTipos, dadosCidades) {
+    const labelsTipo = Object.keys(dadosTipos);
+    const dataTipo = Object.values(dadosTipos);
+    criarGraficoPizza("graficoTipo", labelsTipo, dataTipo);
+
+    const labelsCidade = Object.keys(dadosCidades);
+    const dataCidade = Object.values(dadosCidades);
+    criarGraficoBarras("graficoCidade", labelsCidade, dataCidade);
 }
 
-function criarGraficoPizza(idCanvas, rotulos, dados) {
-  const canvas = document.getElementById(idCanvas)
-  if (!canvas) return
-
-  const ctx = canvas.getContext("2d")
-  const cores = ["#D4A843", "#2196F3", "#4CAF50", "#FF9800"]
-
-  canvas.width = 300
-  canvas.height = 300
-
-  const total = dados.reduce((a, b) => a + b, 0)
-  let anguloAtual = -Math.PI / 2
-
-  dados.forEach((valor, indice) => {
-    const anguloFatia = (valor / total) * 2 * Math.PI
-
-    ctx.beginPath()
-    ctx.arc(150, 150, 100, anguloAtual, anguloAtual + anguloFatia)
-    ctx.lineTo(150, 150)
-    ctx.fillStyle = cores[indice]
-    ctx.fill()
-
-    anguloAtual += anguloFatia
-  })
-
-  let yLegenda = 20
-  rotulos.forEach((rotulo, indice) => {
-    ctx.fillStyle = cores[indice]
-    ctx.fillRect(220, yLegenda, 15, 15)
-    ctx.fillStyle = "#333"
-    ctx.font = "12px Inter"
-    ctx.fillText(`${rotulo}: ${dados[indice]}`, 240, yLegenda + 12)
-    yLegenda += 25
-  })
-}
-
-function criarGraficoBarras(idCanvas, rotulos, dados) {
-  const canvas = document.getElementById(idCanvas)
-  if (!canvas) return
-
-  const ctx = canvas.getContext("2d")
-  canvas.width = 400
-  canvas.height = 300
-
-  const larguraBarra = 60
-  const valorMaximo = Math.max(...dados)
-  const alturaGrafico = 200
-  const inicioX = 50
-  const inicioY = 250
-
-  dados.forEach((valor, indice) => {
-    const alturaBarra = (valor / valorMaximo) * alturaGrafico
-    const x = inicioX + indice * (larguraBarra + 20)
-    const y = inicioY - alturaBarra
-
-    ctx.fillStyle = "#D4A843"
-    ctx.fillRect(x, y, larguraBarra, alturaBarra)
-
-    ctx.fillStyle = "#333"
-    ctx.font = "12px Inter"
-    ctx.fillText(rotulos[indice], x, inicioY + 20)
-    ctx.fillText(valor.toString(), x + 20, y - 5)
-  })
-}
-
-function criarGraficoLinha(idCanvas, rotulos, dados) {
-  const canvas = document.getElementById(idCanvas)
-  if (!canvas) return
-
-  const ctx = canvas.getContext("2d")
-  canvas.width = 600
-  canvas.height = 300
-
-  const valorMaximo = Math.max(...dados)
-  const alturaGrafico = 200
-  const larguraGrafico = 500
-  const inicioX = 50
-  const inicioY = 250
-  const espacamentoPontos = larguraGrafico / (dados.length - 1)
-
-  ctx.beginPath()
-  ctx.strokeStyle = "#D4A843"
-  ctx.lineWidth = 3
-
-  dados.forEach((valor, indice) => {
-    const x = inicioX + indice * espacamentoPontos
-    const y = inicioY - (valor / valorMaximo) * alturaGrafico
-
-    if (indice === 0) {
-      ctx.moveTo(x, y)
-    } else {
-      ctx.lineTo(x, y)
+function criarGraficoPizza(canvasId, labels, data) {
+    if (graficosAtivos[canvasId]) {
+        graficosAtivos[canvasId].destroy();
     }
-  })
+    
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    graficosAtivos[canvasId] = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Imóveis por Tipo',
+                data: data,
+                backgroundColor: [
+                    '#D4A843',
+                    '#FF9800',
+                    '#4CAF50',
+                    '#ff0000',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#9966FF'
+                ],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
+    });
+}
 
-  ctx.stroke()
+function criarGraficoBarras(canvasId, labels, data) {
+    if (graficosAtivos[canvasId]) {
+        graficosAtivos[canvasId].destroy();
+    }
 
-  dados.forEach((valor, indice) => {
-    const x = inicioX + indice * espacamentoPontos
-    const y = inicioY - (valor / valorMaximo) * alturaGrafico
-
-    ctx.beginPath()
-    ctx.arc(x, y, 5, 0, 2 * Math.PI)
-    ctx.fillStyle = "#D4A843"
-    ctx.fill()
-
-    ctx.fillStyle = "#333"
-    ctx.font = "12px Inter"
-    ctx.fillText(rotulos[indice], x - 15, inicioY + 20)
-    ctx.fillText(`R$ ${(valor / 1000).toFixed(0)}k`, x - 20, y - 10)
-  })
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    graficosAtivos[canvasId] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Imóveis por Cidade',
+                data: data,
+                backgroundColor: [
+                    '#D4A843',
+                    '#FF9800',
+                    '#4CAF50',
+                    '#ff0000',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#9966FF'
+                ],
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
 }
 
 // ========================================
@@ -1167,8 +1178,106 @@ function reprovarImovel(id) {
   );
 }
 
+////////////////////////////////////////////////////////////
+
+const cepInput = document.getElementById('imovel-cep');
+const cepLoading = document.getElementById('cep-loading');
+
+const modalOverlay = document.getElementById('modal-imovel-overlay');
+const formImovel = document.getElementById('form-imovel');
+
+async function buscarCep() {
+    const cep = cepInput.value.replace(/\D/g, '');
+    if (cep.length !== 8) {
+        return; 
+    }
+
+    cepLoading.style.display = 'inline';
+    document.getElementById('imovel-endereco').disabled = true;
+    document.getElementById('imovel-bairro').disabled = true;
+    document.getElementById('imovel-cidade').disabled = true;
+
+    try {
+        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        
+        if (!response.ok) {
+            throw new Error('Erro ao buscar o CEP.');
+        }
+
+        const data = await response.json();
+
+        if (data.erro) {
+            mostrarNotificacao('CEP não encontrado.');
+            document.getElementById('imovel-endereco').value = '';
+            document.getElementById('imovel-bairro').value = '';
+            document.getElementById('imovel-cidade').value = '';
+        } else {
+            document.getElementById('imovel-endereco').value = data.logradouro;
+            document.getElementById('imovel-bairro').value = data.bairro;
+            document.getElementById('imovel-cidade').value = data.localidade;
+            
+            document.getElementById('imovel-numero').focus();
+        }
+
+    } catch (error) {
+        console.error("Erro na API ViaCEP:", error);
+        mostrarNotificacao('Não foi possível buscar o CEP. Verifique sua conexão.');
+    } finally {
+        cepLoading.style.display = 'none';
+        document.getElementById('imovel-endereco').disabled = false;
+        document.getElementById('imovel-bairro').disabled = false;
+        document.getElementById('imovel-cidade').disabled = false;
+    }
+}
+
+
 function abrirModalAdicionarImovel() {
-  mostrarNotificacao("Função de adicionar imóvel em desenvolvimento")
+    modalOverlay.classList.add('ativo');
+}
+
+function fecharModalImovel() {
+    modalOverlay.classList.remove('ativo');
+    setTimeout(() => {
+        formImovel.reset(); 
+    }, 300);
+}
+
+async function salvarImovel(event) {
+    event.preventDefault();
+
+    const formData = new FormData(formImovel);
+    
+    console.log("Enviando dados do imóvel:");
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+    }
+
+    try {
+
+        mostrarNotificacao('Imóvel salvo com sucesso! (Simulação)');
+        fecharModalImovel();
+
+    } catch (error) {
+        console.error("Erro ao salvar o imóvel:", error);
+        mostrarNotificacao(`Erro ao salvar: ${error.message}`);
+    }
+}
+
+
+if (formImovel) {
+    formImovel.addEventListener('submit', salvarImovel);
+}
+
+if (modalOverlay) {
+    modalOverlay.addEventListener('click', function(event) {
+        if (event.target === modalOverlay) {
+            fecharModalImovel();
+        }
+    });
+}
+
+if (cepInput) {
+    cepInput.addEventListener('blur', buscarCep);
 }
 
 // ========================================
