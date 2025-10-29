@@ -1374,47 +1374,87 @@ body {
     border: none;
     border-top: 1px solid #e5e7eb;
     margin: 0.5rem 0;
-    grid-column: 1 / -1; /* Ocupa todas as colunas */
+    grid-column: 1 / -1;
 }
 
-/* Input de Arquivo (Upload) */
 .upload-area {
-    margin-top: 0.25rem;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 25px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.upload-area.drag-over {
+    background-color: #f0f8ff;
+    border-color: #007bff;
+}
+
+#file-upload {
+    display: none;
+}
+
+.upload-area-label span {
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.upload-area .info {
+    font-size: 0.85em;
+    color: #777;
+    margin-top: 5px;
+}
+
+#image-preview-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.preview-item {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.img-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 1.5rem;
-    border: 2px dashed #D1D5DB;
-    border-radius: 6px;
-    text-align: center;
+    transition: background-color 0.2s;
+    opacity: 0.8;
 }
-.upload-area i {
-    font-size: 2.5rem;
-    color: #9ca3af;
-    margin-bottom: 0.5rem;
-    display: block;
-}
-.upload-area-label {
-    cursor: pointer;
-    font-weight: 500;
-    color: #3B82F6;
-    transition: color 0.2s;
-}
-.upload-area-label:hover {
-    color: #2563EB;
-}
-.upload-area-label input[type="file"] {
-    display: none; /* Esconde o input original */
-}
-.upload-area p {
-    margin: 0;
-    font-size: 0.875rem;
-    color: #6B7280;
-}
-.upload-area p.info {
-    font-size: 0.75rem;
-    color: #9ca3af;
-    margin-top: 4px;
+
+.remove-btn:hover {
+    background-color: rgba(255, 0, 0, 0.8);
+    opacity: 1;
 }
 
 .modal-rodape {

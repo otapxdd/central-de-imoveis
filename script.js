@@ -445,14 +445,117 @@ window.google = window.google || {}
 // ========================================
 // INICIALIZAÇÃO DA APLICAÇÃO
 // ========================================
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
+
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-upload');
+  const previewArea = document.getElementById('image-preview-area');
+
+  let filesToUpload = new DataTransfer();
+
+  dropZone.addEventListener('click', (e) => {
+    const label = e.target.closest('label[for="file-upload"]');
+    if (label) {
+      return;
+    }
+    fileInput.click();
+  });
+
+  function processFiles(newFiles) {
+    [...newFiles].forEach(file => {
+      if (file.type.startsWith('image/')) {
+        filesToUpload.items.add(file);
+        createPreview(file);
+      } else {
+        console.warn(`O arquivo "${file.name}" não é uma imagem e foi ignorado.`);
+      }
+    });
+    fileInput.files = filesToUpload.files;
+  }
+
+  fileInput.addEventListener('change', (e) => {
+    processFiles(e.target.files);
+  });
+
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+      dropZone.classList.add('drag-over');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+      dropZone.classList.remove('drag-over');
+    }, false);
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    processFiles(files);
+  }, false);
+
+
+  function createPreview(file) {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const previewItem = document.createElement('div');
+      previewItem.className = 'preview-item';
+      previewItem.dataset.fileName = file.name;
+
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.className = 'img-preview';
+      img.alt = file.name;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-btn';
+      removeBtn.innerHTML = '&times;';
+
+      removeBtn.addEventListener('click', () => {
+        removeFile(file.name);
+        previewItem.remove();
+      });
+
+      previewItem.appendChild(img);
+      previewItem.appendChild(removeBtn);
+
+      previewArea.appendChild(previewItem);
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  function removeFile(fileName) {
+    let newFilesToUpload = new DataTransfer();
+
+    for (let i = 0; i < filesToUpload.files.length; i++) {
+
+      const file = filesToUpload.files[i];
+
+      if (file.name !== fileName) {
+        newFilesToUpload.items.add(file);
+      }
+    }
+
+    filesToUpload = newFilesToUpload;
+    fileInput.files = filesToUpload.files;
+  }
   inicializarAplicacao()
   configurarEventos()
-  // Carrega dados do servidor (se disponíveis) e inicializa as views
   carregarDadosIniciais()
 })
 
-// Tenta carregar dados reais do backend (PHP). Se algum endpoint falhar, mantém os dados simulados.
 async function carregarDadosIniciais() {
   const endpoints = [
     { key: 'imoveis', url: 'api/imoveis.php' },
@@ -657,164 +760,164 @@ function navegarParaPagina(pagina) {
 /////////////////////////////////////////////////
 
 const graficosAtivos = {
-    graficoTipo: null,
-    graficoCidade: null
+  graficoTipo: null,
+  graficoCidade: null
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-    carregarDashboard();
+  carregarDashboard();
 });
 
 async function carregarDashboard() {
-    try {
-        const response = await fetch('api/imoveis.php');
-        if (!response.ok) {
-            throw new Error(`Erro ao buscar dados: ${response.statusText}`);
-        }
-        const imoveis = await response.json();
-
-        const stats = {
-            total: imoveis.length,
-            pendentes: 0,
-            aprovados: 0,
-            reprovados: 0
-        };
-
-        const agregados = {
-            tipos: {}, 
-            cidades: {}
-        };
-
-        for (const imovel of imoveis) {
-            switch (imovel.status) {
-                case 'pendente':
-                    stats.pendentes++;
-                    break;
-                case 'aprovado':
-                    stats.aprovados++;
-                    break;
-                case 'reprovado':
-                    stats.reprovados++;
-                    break;
-            }
-
-            if (imovel.tipo) {
-                agregados.tipos[imovel.tipo] = (agregados.tipos[imovel.tipo] || 0) + 1;
-            }
-
-            if (imovel.cidade) {
-                agregados.cidades[imovel.cidade] = (agregados.cidades[imovel.cidade] || 0) + 1;
-            }
-        }
-
-        document.getElementById('stat-total').textContent = stats.total;
-        document.getElementById('stat-pendentes').textContent = stats.pendentes;
-        document.getElementById('stat-aprovados').textContent = stats.aprovados;
-        document.getElementById('stat-reprovados').textContent = stats.reprovados;
-
-        criarGraficos(agregados.tipos, agregados.cidades);
-
-        carregarListaAtividades();
-
-    } catch (error) {
-        console.error("Erro ao carregar o dashboard:", error);
-        document.getElementById('pagina-dashboard').innerHTML = 
-            `<p style="color: red;">Não foi possível carregar os dados do dashboard. Verifique o console para mais detalhes.</p>`;
+  try {
+    const response = await fetch('api/imoveis.php');
+    if (!response.ok) {
+      throw new Error(`Erro ao buscar dados: ${response.statusText}`);
     }
+    const imoveis = await response.json();
+
+    const stats = {
+      total: imoveis.length,
+      pendentes: 0,
+      aprovados: 0,
+      reprovados: 0
+    };
+
+    const agregados = {
+      tipos: {},
+      cidades: {}
+    };
+
+    for (const imovel of imoveis) {
+      switch (imovel.status) {
+        case 'pendente':
+          stats.pendentes++;
+          break;
+        case 'aprovado':
+          stats.aprovados++;
+          break;
+        case 'reprovado':
+          stats.reprovados++;
+          break;
+      }
+
+      if (imovel.tipo) {
+        agregados.tipos[imovel.tipo] = (agregados.tipos[imovel.tipo] || 0) + 1;
+      }
+
+      if (imovel.cidade) {
+        agregados.cidades[imovel.cidade] = (agregados.cidades[imovel.cidade] || 0) + 1;
+      }
+    }
+
+    document.getElementById('stat-total').textContent = stats.total;
+    document.getElementById('stat-pendentes').textContent = stats.pendentes;
+    document.getElementById('stat-aprovados').textContent = stats.aprovados;
+    document.getElementById('stat-reprovados').textContent = stats.reprovados;
+
+    criarGraficos(agregados.tipos, agregados.cidades);
+
+    carregarListaAtividades();
+
+  } catch (error) {
+    console.error("Erro ao carregar o dashboard:", error);
+    document.getElementById('pagina-dashboard').innerHTML =
+      `<p style="color: red;">Não foi possível carregar os dados do dashboard. Verifique o console para mais detalhes.</p>`;
+  }
 }
 
 function carregarListaAtividades() {
-    const listaAtividades = document.getElementById("listaAtividades");
-    listaAtividades.innerHTML = "<p>Nenhuma atividade recente registrada.</p>";
+  const listaAtividades = document.getElementById("listaAtividades");
+  listaAtividades.innerHTML = "<p>Nenhuma atividade recente registrada.</p>";
 }
 
 function criarGraficos(dadosTipos, dadosCidades) {
-    const labelsTipo = Object.keys(dadosTipos);
-    const dataTipo = Object.values(dadosTipos);
-    criarGraficoPizza("graficoTipo", labelsTipo, dataTipo);
+  const labelsTipo = Object.keys(dadosTipos);
+  const dataTipo = Object.values(dadosTipos);
+  criarGraficoPizza("graficoTipo", labelsTipo, dataTipo);
 
-    const labelsCidade = Object.keys(dadosCidades);
-    const dataCidade = Object.values(dadosCidades);
-    criarGraficoBarras("graficoCidade", labelsCidade, dataCidade);
+  const labelsCidade = Object.keys(dadosCidades);
+  const dataCidade = Object.values(dadosCidades);
+  criarGraficoBarras("graficoCidade", labelsCidade, dataCidade);
 }
 
 function criarGraficoPizza(canvasId, labels, data) {
-    if (graficosAtivos[canvasId]) {
-        graficosAtivos[canvasId].destroy();
-    }
-    
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    graficosAtivos[canvasId] = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Imóveis por Tipo',
-                data: data,
-                backgroundColor: [
-                    '#D4A843',
-                    '#FF9800',
-                    '#4CAF50',
-                    '#ff0000',
-                    '#36A2EB',
-                    '#FFCE56',
-                    '#9966FF'
-                ],
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    position: 'top'
-                }
-            }
+  if (graficosAtivos[canvasId]) {
+    graficosAtivos[canvasId].destroy();
+  }
+
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  graficosAtivos[canvasId] = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Imóveis por Tipo',
+        data: data,
+        backgroundColor: [
+          '#D4A843',
+          '#FF9800',
+          '#4CAF50',
+          '#ff0000',
+          '#36A2EB',
+          '#FFCE56',
+          '#9966FF'
+        ],
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'top'
         }
-    });
+      }
+    }
+  });
 }
 
 function criarGraficoBarras(canvasId, labels, data) {
-    if (graficosAtivos[canvasId]) {
-        graficosAtivos[canvasId].destroy();
-    }
+  if (graficosAtivos[canvasId]) {
+    graficosAtivos[canvasId].destroy();
+  }
 
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    graficosAtivos[canvasId] = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Imóveis por Cidade',
-                data: data,
-                backgroundColor: [
-                    '#D4A843',
-                    '#FF9800',
-                    '#4CAF50',
-                    '#ff0000',
-                    '#36A2EB',
-                    '#FFCE56',
-                    '#9966FF'
-                ],
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            indexAxis: 'y',
-            scales: {
-                x: {
-                    beginAtZero: true
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                }
-            }
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  graficosAtivos[canvasId] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Imóveis por Cidade',
+        data: data,
+        backgroundColor: [
+          '#D4A843',
+          '#FF9800',
+          '#4CAF50',
+          '#ff0000',
+          '#36A2EB',
+          '#FFCE56',
+          '#9966FF'
+        ],
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      indexAxis: 'y',
+      scales: {
+        x: {
+          beginAtZero: true
         }
-    });
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
 }
 
 // ========================================
@@ -845,9 +948,8 @@ function renderizarTabelaImoveis(imoveis) {
                 <button class="btn btn-icone btn-secundario" onclick="visualizarImovel(${imovel.id})" title="Ver Detalhes">
                     <i class="fas fa-eye"></i>
                 </button>
-                ${
-                  imovel.status === "pendente"
-                    ? `
+                ${imovel.status === "pendente"
+          ? `
                     <button class="btn btn-icone btn-sucesso" onclick="aprovarImovel(${imovel.id})" title="Aprovar">
                         <i class="fas fa-check"></i>
                     </button>
@@ -855,8 +957,8 @@ function renderizarTabelaImoveis(imoveis) {
                         <i class="fas fa-times"></i>
                     </button>
                 `
-                    : ""
-                }
+          : ""
+        }
             </td>
         </tr>
     `,
@@ -875,8 +977,15 @@ function filtrarImoveis() {
   if (status) filtrados = filtrados.filter((i) => i.status === status)
   if (tipo) filtrados = filtrados.filter((i) => i.tipo === tipo)
   if (cidade) filtrados = filtrados.filter((i) => i.cidade === cidade)
-  if (busca)
-    filtrados = filtrados.filter((i) => i.nome.toLowerCase().includes(busca) || i.codigo.toLowerCase().includes(busca))
+  if (busca) {
+    // Se o usuário digitou apenas números, faz match por ID (mais preciso).
+    const somenteNumeros = /^\d+$/.test(busca)
+    filtrados = filtrados.filter((i) => {
+      const nomeMatch = i.nome && i.nome.toLowerCase().includes(busca)
+      const idMatch = String(i.id).includes(busca)
+      return somenteNumeros ? String(i.id) === busca : nomeMatch || idMatch
+    })
+  }
 
   renderizarTabelaImoveis(filtrados)
 }
@@ -906,26 +1015,24 @@ function carregarAprovacao() {
                 <p class="preco-imovel">R$ ${Number(imovel.valor).toLocaleString("pt-BR")}</p>
                 
                 <div class="detalhes-imovel">
-                    ${
-                      imovel.quartos > 0
-                        ? `
+                    ${imovel.quartos > 0
+          ? `
                         <div class="detalhe-imovel">
                             <i class="fas fa-bed"></i>
                             <span>${imovel.quartos} quartos</span>
                         </div>
                     `
-                        : ""
-                    }
-                    ${
-                      imovel.banheiros > 0
-                        ? `
+          : ""
+        }
+                    ${imovel.banheiros > 0
+          ? `
                         <div class="detalhe-imovel">
                             <i class="fas fa-bath"></i>
                             <span>${imovel.banheiros} banheiros</span>
                         </div>
                     `
-                        : ""
-                    }
+          : ""
+        }
                     <div class="detalhe-imovel">
                         <i class="fas fa-ruler-combined"></i>
                         <span>${imovel.area}m²</span>
@@ -953,71 +1060,71 @@ function carregarAprovacao() {
 }
 
 function carregarMapaDoModal(lat, lng) {
-    const elementoMapa = document.getElementById('mapa-no-modal');
-    
-    if (!elementoMapa) {
-        console.warn("Elemento 'mapa-no-modal' não encontrado.");
-        return; 
-    }
+  const elementoMapa = document.getElementById('mapa-no-modal');
 
-    const posicao = { lat: parseFloat(lat), lng: parseFloat(lng) };
+  if (!elementoMapa) {
+    console.warn("Elemento 'mapa-no-modal' não encontrado.");
+    return;
+  }
 
-    const map = new google.maps.Map(elementoMapa, {
-        zoom: 16,
-        center: posicao,
-        disableDefaultUI: true,
-        gestureHandling: 'cooperative'
-    });
+  const posicao = { lat: parseFloat(lat), lng: parseFloat(lng) };
 
-    const houseSvgPath = "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z";
-    const iconeCasa = {
-        path: houseSvgPath,
-        fillColor: "#D4A843",
-        fillOpacity: 1,
-        strokeWeight: 0,
-        scale: 1.5,
-        anchor: new google.maps.Point(12, 24)
-    };
+  const map = new google.maps.Map(elementoMapa, {
+    zoom: 16,
+    center: posicao,
+    disableDefaultUI: true,
+    gestureHandling: 'cooperative'
+  });
 
-    new google.maps.Marker({
-        position: posicao,
-        map: map,
-        icon: iconeCasa
-    });
+  const houseSvgPath = "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z";
+  const iconeCasa = {
+    path: houseSvgPath,
+    fillColor: "#D4A843",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    scale: 1.5,
+    anchor: new google.maps.Point(12, 24)
+  };
+
+  new google.maps.Marker({
+    position: posicao,
+    map: map,
+    icon: iconeCasa
+  });
 }
 
 function visualizarImovel(id) {
-    console.log("ID recebido:", id, "(Tipo:", typeof id, ")");
-    if (dadosAtuais.imoveis.length > 0) {
-        console.log("ID no 1º imóvel:", dadosAtuais.imoveis[0].id, "(Tipo:", typeof dadosAtuais.imoveis[0].id, ")");
-    }
-    // ----------------------------------------
+  console.log("ID recebido:", id, "(Tipo:", typeof id, ")");
+  if (dadosAtuais.imoveis.length > 0) {
+    console.log("ID no 1º imóvel:", dadosAtuais.imoveis[0].id, "(Tipo:", typeof dadosAtuais.imoveis[0].id, ")");
+  }
+  // ----------------------------------------
 
-    const imovel = dadosAtuais.imoveis.find((i) => i.id == id);
-    
-    console.log("Imóvel encontrado:", imovel);
+  const imovel = dadosAtuais.imoveis.find((i) => i.id == id);
 
-    if (!imovel) {
-        mostrarNotificacao("ERRO: Imóvel não encontrado (ID: " + id + ")", "erro");
-        return;
-    }
+  console.log("Imóvel encontrado:", imovel);
 
-    const lat = parseFloat(imovel.latitude);
-    const lng = parseFloat(imovel.longitude);
-    const temCoordenadasValidas = !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90;
+  if (!imovel) {
+    mostrarNotificacao("ERRO: Imóvel não encontrado (ID: " + id + ")", "erro");
+    return;
+  }
 
-    let htmlLocalizacao = '';
+  const lat = parseFloat(imovel.latitude);
+  const lng = parseFloat(imovel.longitude);
+  const temCoordenadasValidas = !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90;
 
-    if (temCoordenadasValidas) {
-        htmlLocalizacao = `
+  let htmlLocalizacao = '';
+
+  if (temCoordenadasValidas) {
+    htmlLocalizacao = `
             <div style="margin-top: 1.5rem;">
                 <h4 style="margin-bottom: 0.75rem;">Localização</h4>
                 <div id="mapa-no-modal" style="height: 300px; width: 100%; border-radius: 8px; background: #f0f0f0;">
                     </div>
             </div>
         `;
-    } else {
-        htmlLocalizacao = `
+  } else {
+    htmlLocalizacao = `
             <div style="margin-top: 1.5rem;">
                 <h4 style="margin-bottom: 0.75rem;">Localização</h4>
                 <div style="background: var(--fundo-secundario); padding: 1rem; border-radius: 8px; text-align: center;">
@@ -1026,10 +1133,10 @@ function visualizarImovel(id) {
                 </div>
             </div>
         `;
-    }
+  }
 
-    const corpoModal = document.getElementById("corpoModal");
-    corpoModal.innerHTML = `
+  const corpoModal = document.getElementById("corpoModal");
+  corpoModal.innerHTML = `
         <div class="galeria-modal">
             <img src="/placeholder.svg?height=200&width=300" alt="Foto 1">
             <img src="/placeholder.svg?height=200&width=300" alt="Foto 2">
@@ -1039,7 +1146,7 @@ function visualizarImovel(id) {
         <div class="info-modal">
             <div class="item-info-modal">
                 <span class="label-info-modal">Código:</span>
-                <span class="valor-info-modal">${imovel.codigo}</span>
+                <span class="valor-info-modal">${imovel.id}</span>
             </div>
             <div class="item-info-modal">
                 <span class="label-info-modal">Nome:</span>
@@ -1089,14 +1196,14 @@ function visualizarImovel(id) {
         ${htmlLocalizacao}
     `;
 
-    document.getElementById("tituloModal").textContent = imovel.nome;
-    abrirModal("modalImovel");
+  document.getElementById("tituloModal").textContent = imovel.nome;
+  abrirModal("modalImovel");
 
-    if (temCoordenadasValidas) {
-        setTimeout(() => {
-            carregarMapaDoModal(lat, lng);
-        }, 150); 
-    }
+  if (temCoordenadasValidas) {
+    setTimeout(() => {
+      carregarMapaDoModal(lat, lng);
+    }, 150);
+  }
 }
 
 function obterDescricaoImovel(imovel) {
@@ -1118,7 +1225,7 @@ function editarImovel(id) {
 
 function aprovarImovel(id) {
   mostrarModalConfirmacao("Aprovar Imóvel", "Tem certeza que deseja aprovar este imóvel?", async () => {
-    
+
     try {
       const response = await fetch('api/aprovarImovel.php', {
         method: 'POST',
@@ -1139,7 +1246,7 @@ function aprovarImovel(id) {
 
     } catch (error) {
       console.error('Erro ao aprovar imóvel:', error);
-      mostrarNotificacao(`Erro ao aprovar: ${error.message}`, 'erro'); 
+      mostrarNotificacao(`Erro ao aprovar: ${error.message}`, 'erro');
     }
   });
 }
@@ -1149,7 +1256,7 @@ function reprovarImovel(id) {
     "Reprovar Imóvel",
     "Tem certeza que deseja reprovar este imóvel? Esta ação pode ser revertida posteriormente.",
     async () => {
-      
+
       try {
         const response = await fetch('api/reprovarImovel.php', {
           method: 'POST',
@@ -1167,7 +1274,7 @@ function reprovarImovel(id) {
 
         carregarImoveis();
         carregarAprovacao();
-        
+
         mostrarNotificacao("Imóvel reprovado", "aviso");
 
       } catch (error) {
@@ -1187,97 +1294,109 @@ const modalOverlay = document.getElementById('modal-imovel-overlay');
 const formImovel = document.getElementById('form-imovel');
 
 async function buscarCep() {
-    const cep = cepInput.value.replace(/\D/g, '');
-    if (cep.length !== 8) {
-        return; 
+  const cep = cepInput.value.replace(/\D/g, '');
+  if (cep.length !== 8) {
+    return;
+  }
+
+  cepLoading.style.display = 'inline';
+  document.getElementById('imovel-endereco').disabled = true;
+  document.getElementById('imovel-bairro').disabled = true;
+  document.getElementById('imovel-cidade').disabled = true;
+
+  try {
+    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+
+    if (!response.ok) {
+      throw new Error('Erro ao buscar o CEP.');
     }
 
-    cepLoading.style.display = 'inline';
-    document.getElementById('imovel-endereco').disabled = true;
-    document.getElementById('imovel-bairro').disabled = true;
-    document.getElementById('imovel-cidade').disabled = true;
+    const data = await response.json();
 
-    try {
-        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-        
-        if (!response.ok) {
-            throw new Error('Erro ao buscar o CEP.');
-        }
+    if (data.erro) {
+      mostrarNotificacao('CEP não encontrado.');
+      document.getElementById('imovel-endereco').value = '';
+      document.getElementById('imovel-bairro').value = '';
+      document.getElementById('imovel-cidade').value = '';
+    } else {
+      document.getElementById('imovel-endereco').value = data.logradouro;
+      document.getElementById('imovel-bairro').value = data.bairro;
+      document.getElementById('imovel-cidade').value = data.localidade;
 
-        const data = await response.json();
-
-        if (data.erro) {
-            mostrarNotificacao('CEP não encontrado.');
-            document.getElementById('imovel-endereco').value = '';
-            document.getElementById('imovel-bairro').value = '';
-            document.getElementById('imovel-cidade').value = '';
-        } else {
-            document.getElementById('imovel-endereco').value = data.logradouro;
-            document.getElementById('imovel-bairro').value = data.bairro;
-            document.getElementById('imovel-cidade').value = data.localidade;
-            
-            document.getElementById('imovel-numero').focus();
-        }
-
-    } catch (error) {
-        console.error("Erro na API ViaCEP:", error);
-        mostrarNotificacao('Não foi possível buscar o CEP. Verifique sua conexão.');
-    } finally {
-        cepLoading.style.display = 'none';
-        document.getElementById('imovel-endereco').disabled = false;
-        document.getElementById('imovel-bairro').disabled = false;
-        document.getElementById('imovel-cidade').disabled = false;
+      document.getElementById('imovel-numero').focus();
     }
+
+  } catch (error) {
+    console.error("Erro na API ViaCEP:", error);
+    mostrarNotificacao('Não foi possível buscar o CEP. Verifique sua conexão.');
+  } finally {
+    cepLoading.style.display = 'none';
+    document.getElementById('imovel-endereco').disabled = false;
+    document.getElementById('imovel-bairro').disabled = false;
+    document.getElementById('imovel-cidade').disabled = false;
+  }
 }
 
 
 function abrirModalAdicionarImovel() {
-    modalOverlay.classList.add('ativo');
+  modalOverlay.classList.add('ativo');
 }
 
 function fecharModalImovel() {
-    modalOverlay.classList.remove('ativo');
-    setTimeout(() => {
-        formImovel.reset(); 
-    }, 300);
+  modalOverlay.classList.remove('ativo');
+  setTimeout(() => {
+    formImovel.reset();
+  }, 300);
 }
 
 async function salvarImovel(event) {
-    event.preventDefault();
+  event.preventDefault();
 
-    const formData = new FormData(formImovel);
-    
-    console.log("Enviando dados do imóvel:");
-    for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
+  const formImovel = document.getElementById('form-imovel');
+  const formData = new FormData(formImovel);
+
+  console.log("Enviando dados do imóvel:");
+  for (let [key, value] of formData.entries()) {
+    console.log(`${key}:`, value);
+  }
+
+  try {
+
+
+    const response = await fetch('api/salvarImovel.php', {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      mostrarNotificacao('Imóvel salvo com sucesso!');
+      fecharModalImovel();
+    } else {
+      throw new Error(result.message);
     }
 
-    try {
-
-        mostrarNotificacao('Imóvel salvo com sucesso! (Simulação)');
-        fecharModalImovel();
-
-    } catch (error) {
-        console.error("Erro ao salvar o imóvel:", error);
-        mostrarNotificacao(`Erro ao salvar: ${error.message}`);
-    }
+  } catch (error) {
+    console.error("Erro ao salvar o imóvel:", error);
+    mostrarNotificacao(`Erro ao salvar: ${error.message}`);
+    // esconderLoading();
+  }
 }
 
-
 if (formImovel) {
-    formImovel.addEventListener('submit', salvarImovel);
+  formImovel.addEventListener('submit', salvarImovel);
 }
 
 if (modalOverlay) {
-    modalOverlay.addEventListener('click', function(event) {
-        if (event.target === modalOverlay) {
-            fecharModalImovel();
-        }
-    });
+  modalOverlay.addEventListener('click', function (event) {
+    if (event.target === modalOverlay) {
+      fecharModalImovel();
+    }
+  });
 }
 
 if (cepInput) {
-    cepInput.addEventListener('blur', buscarCep);
+  cepInput.addEventListener('blur', buscarCep);
 }
 
 // ========================================
@@ -1419,18 +1538,18 @@ function renderizarMarcadoresMapa(imoveis) {
   marcadoresAtuais.forEach((marker) => marker.setMap(null))
   marcadoresAtuais = []
 
-    const bounds = new google.maps.LatLngBounds();
+  const bounds = new google.maps.LatLngBounds();
 
-    const houseSvgPath = "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z";
+  const houseSvgPath = "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z";
 
-    const iconeCasa = {
-        path: houseSvgPath,
-        fillColor: "#D4A843",
-        fillOpacity: 1,
-        strokeWeight: 0,
-        scale: 1.5,
-        anchor: new google.maps.Point(12, 24),
-    };
+  const iconeCasa = {
+    path: houseSvgPath,
+    fillColor: "#D4A843",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    scale: 1.5,
+    anchor: new google.maps.Point(12, 24),
+  };
 
   imoveis.forEach((imovel) => {
     const posicao = {
@@ -1617,15 +1736,14 @@ function carregarAgendamentos() {
             <td>${ag.horario}</td>
             <td><span class="badge badge-${obterClasseBadgeStatusAgendamento(ag.status)}">${ag.status}</span></td>
             <td>
-                ${
-                  ag.status === "pendente"
-                    ? `
+                ${ag.status === "pendente"
+          ? `
                     <button class="btn btn-icone btn-sucesso" onclick="confirmarAgendamento(${ag.id})" title="Confirmar">
                         <i class="fas fa-check"></i>
                     </button>
                 `
-                    : ""
-                }
+          : ""
+        }
                 <button class="btn btn-icone btn-perigo" onclick="cancelarAgendamento(${ag.id})" title="Cancelar">
                     <i class="fas fa-times"></i>
                 </button>

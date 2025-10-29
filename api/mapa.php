@@ -9,7 +9,6 @@ $tipo_nome = $_GET['tipo'] ?? '';
 $sql = "
     SELECT 
         i.id_imovel as id,
-        i.codigo,
         i.nome,
         i.cidade,
         i.latitude,
