@@ -73,3 +73,31 @@ function navegarParaPagina(pagina) {
     barraLateral.classList.remove("active")
   }
 }
+
+function inicializarAplicacao() {
+  const itensNavegacao = document.querySelectorAll(".item-navegacao")
+  itensNavegacao.forEach((item) => {
+    item.addEventListener("click", function (e) {
+      e.preventDefault()
+      const pagina = this.getAttribute("data-pagina")
+      navegarParaPagina(pagina)
+    })
+  })
+}
+
+// Configura eventos básicos da UI (menu mobile e tema)
+function configurarEventos() {
+  const alternarMenuMobile = document.getElementById("alternarMenuMobile")
+  const barraLateral = document.getElementById("barraLateral")
+
+  if (alternarMenuMobile && barraLateral) {
+    alternarMenuMobile.addEventListener("click", () => {
+      barraLateral.classList.toggle("active")
+    })
+  }
+
+  const alternarTema = document.getElementById("alternarTema")
+  if (alternarTema && typeof alternarTemaEscuro === "function") {
+    alternarTema.addEventListener("click", alternarTemaEscuro)
+  }
+}

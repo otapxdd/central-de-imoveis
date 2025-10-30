@@ -1,4 +1,3 @@
-import { Chart } from "@/components/ui/chart"
 // ========================================
 // MÓDULO DE DASHBOARD
 // Gerencia estatísticas e gráficos do painel administrativo

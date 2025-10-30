@@ -3,39 +3,7 @@
 // Gerencia requisições ao backend
 // ========================================
 
-const dadosAtuais = {}
-
-function mostrarLoading(mensagem) {
-  console.log(mensagem)
-}
-
-function ocultarLoading() {
-  console.log("Loading ocultado")
-}
-
-function mostrarNotificacao(mensagem, tipo) {
-  console.log(`${tipo}: ${mensagem}`)
-}
-
-function carregarDashboard() {
-  console.log("Dashboard carregado")
-}
-
-function carregarImoveis() {
-  console.log("Imóveis carregados")
-}
-
-function carregarAprovacao() {
-  console.log("Aprovação carregada")
-}
-
-function carregarUsuarios() {
-  console.log("Usuários carregados")
-}
-
-function carregarMensagens() {
-  console.log("Mensagens carregadas")
-}
+// Usa utilitários e dados definidos em outros módulos
 
 /**
  * Carrega todos os dados iniciais da aplicação

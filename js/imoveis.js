@@ -3,69 +3,7 @@
 // Gerencia listagem, aprovação e visualização de imóveis
 // ========================================
 
-// const dadosAtuais = {
-//   imoveis: [],
-// }
-
-function obterClasseBadgeStatus(status) {
-  switch (status) {
-    case "pendente":
-      return "info"
-    case "aprovado":
-      return "success"
-    case "reprovado":
-      return "danger"
-    default:
-      return "default"
-  }
-}
-
-function mostrarNotificacao(mensagem, tipo = "sucesso") {
-  const notificacao = document.createElement("div")
-  notificacao.className = `notificacao notificacao-${tipo}`
-  notificacao.textContent = mensagem
-  document.body.appendChild(notificacao)
-  setTimeout(() => {
-    document.body.removeChild(notificacao)
-  }, 3000)
-}
-
-function obterDescricaoImovel(imovel) {
-  return `Imóvel ${imovel.tipo} em ${imovel.cidade} com ${imovel.quartos} quartos e ${imovel.banheiros} banheiros`
-}
-
-function abrirModal(modalId) {
-  const modal = document.getElementById(modalId)
-  modal.style.display = "block"
-}
-
-function carregarMapaDoModal(lat, lng) {
-  const mapaContainer = document.getElementById("mapa-no-modal")
-  mapaContainer.innerHTML = `<p>Mapa para lat: ${lat}, lng: ${lng}</p>`
-}
-
-function mostrarModalConfirmacao(titulo, mensagem, callback) {
-  const modalConfirmacao = document.createElement("div")
-  modalConfirmacao.className = "modal-confirmacao"
-  modalConfirmacao.innerHTML = `
-    <div class="modal-confirmacao-conteudo">
-      <h4>${titulo}</h4>
-      <p>${mensagem}</p>
-      <div class="modal-confirmacao-botoes">
-        <button class="btn btn-sucesso" onclick="callback()">Sim</button>
-        <button class="btn btn-perigo" onclick="fecharModalConfirmacao()">Não</button>
-      </div>
-    </div>
-  `
-  document.body.appendChild(modalConfirmacao)
-}
-
-function fecharModalConfirmacao() {
-  const modalConfirmacao = document.querySelector(".modal-confirmacao")
-  if (modalConfirmacao) {
-    document.body.removeChild(modalConfirmacao)
-  }
-}
+// utilitários e UI já fornecem helpers (obterClasseBadgeStatus, mostrarNotificacao, abrirModal, etc.)
 
 function carregarImoveis() {
   renderizarTabelaImoveis(dadosAtuais.imoveis)
@@ -277,28 +215,28 @@ function carregarAprovacao() {
 }
 
 function visualizarImovel(id) {
-  const imovel = dadosAtuais.imoveis.find((i) => i.id == id)
+    const imovel = dadosAtuais.imoveis.find((i) => i.id == id);
 
-  if (!imovel) {
-    mostrarNotificacao("ERRO: Imóvel não encontrado (ID: " + id + ")", "erro")
-    return
-  }
+    if (!imovel) {
+        mostrarNotificacao("ERRO: Imóvel não encontrado (ID: " + id + ")", "erro");
+        return;
+    }
 
-  const lat = Number.parseFloat(imovel.latitude)
-  const lng = Number.parseFloat(imovel.longitude)
-  const temCoordenadasValidas = !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90
+    const lat = Number.parseFloat(imovel.latitude);
+    const lng = Number.parseFloat(imovel.longitude);
+    const temCoordenadasValidas = !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90;
 
-  let htmlLocalizacao = ""
+    let htmlLocalizacao = "";
 
-  if (temCoordenadasValidas) {
-    htmlLocalizacao = `
+    if (temCoordenadasValidas) {
+        htmlLocalizacao = `
       <div style="margin-top: 1.5rem;">
         <h4 style="margin-bottom: 0.75rem;">Localização</h4>
         <div id="mapa-no-modal" style="height: 300px; width: 100%; border-radius: 8px; background: #f0f0f0;"></div>
       </div>
-    `
-  } else {
-    htmlLocalizacao = `
+    `;
+    } else {
+        htmlLocalizacao = `
       <div style="margin-top: 1.5rem;">
         <h4 style="margin-bottom: 0.75rem;">Localização</h4>
         <div style="background: var(--fundo-secundario); padding: 1rem; border-radius: 8px; text-align: center;">
@@ -306,17 +244,38 @@ function visualizarImovel(id) {
           <p style="margin-top: 0.5rem; color: var(--texto-secundario);">${imovel.cidade}</p>
         </div>
       </div>
-    `
-  }
+    `;
+    }
 
-  const corpoModal = document.getElementById("corpoModal")
-  corpoModal.innerHTML = `
-    <div class="galeria-modal">
-      <img src="/placeholder.svg?height=200&width=300" alt="Foto 1">
-      <img src="/placeholder.svg?height=200&width=300" alt="Foto 2">
-      <img src="/placeholder.svg?height=200&width=300" alt="Foto 3">
-    </div>
-    <div class="info-modal">
+    let htmlGaleria = "";
+    const urlBaseImagens = "/"; 
+
+    if (imovel.fotos && imovel.fotos.length > 0) {
+        const tagsImagens = imovel.fotos.map((caminhoFoto, index) => {
+            const urlCompleta = 'central-de-imoveisadmin/'+caminhoFoto.startsWith(urlBaseImagens) ? caminhoFoto : `${urlBaseImagens}${caminhoFoto}`;
+            return `<img src="${urlCompleta}" alt="Foto ${index + 1} do Imóvel">`;
+        }).join('');
+
+        htmlGaleria = `
+            <div class="galeria-modal">
+                ${tagsImagens}
+            </div>
+        `;
+    } else {
+        // Fallback se não houver fotos, pode mostrar um placeholder
+        htmlGaleria = `
+            <div class="galeria-modal">
+                <img src="/placeholder.svg?height=200&width=300" alt="Imóvel sem fotos">
+            </div>
+        `;
+    }
+    // --- FIM DO NOVO BLOCO ---
+
+
+    const corpoModal = document.getElementById("corpoModal");
+    corpoModal.innerHTML = `
+    
+    ${htmlGaleria} <div class="info-modal">
       <div class="item-info-modal">
         <span class="label-info-modal">Código:</span>
         <span class="valor-info-modal">${imovel.id}</span>
@@ -358,25 +317,26 @@ function visualizarImovel(id) {
         <span class="badge badge-${obterClasseBadgeStatus(imovel.status)}">${imovel.status}</span>
       </div>
     </div>
+
     <div style="margin-top: 1.5rem;">
       <h4 style="margin-bottom: 0.75rem;">Descrição</h4>
       <p style="color: var(--texto-secundario); line-height: 1.6;">
         ${imovel.descricao || obterDescricaoImovel(imovel)}
       </p>
     </div>
+
     ${htmlLocalizacao}
-  `
+  `;
 
-  document.getElementById("tituloModal").textContent = imovel.nome
-  abrirModal("modalImovel")
+    document.getElementById("tituloModal").textContent = imovel.nome;
+    abrirModal("modalImovel");
 
-  if (temCoordenadasValidas) {
-    setTimeout(() => {
-      carregarMapaDoModal(lat, lng)
-    }, 150)
-  }
+    if (temCoordenadasValidas) {
+        setTimeout(() => {
+            carregarMapaDoModal(lat, lng);
+        }, 150);
+    }
 }
-
 function aprovarImovel(id) {
   mostrarModalConfirmacao("Aprovar Imóvel", "Tem certeza que deseja aprovar este imóvel?", async () => {
     try {

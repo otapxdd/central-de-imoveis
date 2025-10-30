@@ -43,10 +43,6 @@ function visualizarMensagem(id) {
         <p style="line-height: 1.6; color: var(--texto-primario);">${msg.mensagem}</p>
     `
 
-  function abrirModal(modalId) {
-    document.getElementById(modalId).style.display = "block"
-  }
-
   abrirModal("modalMensagem")
   carregarMensagens()
 }

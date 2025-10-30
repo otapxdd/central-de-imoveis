@@ -7,33 +7,7 @@ window.googleMapsApiPronto = false
 window.mapaGoogle = null
 window.marcadoresAtuais = []
 window.infoWindowGoogle = null
-window.mostrarNotificacao = (message, type) => {
-  console.log(`Notificação (${type}): ${message}`)
-}
-window.dadosAtuais = {
-  imoveis: [
-    {
-      id: 1,
-      nome: "Imóvel 1",
-      cidade: "São Paulo",
-      tipo: "Apartamento",
-      valor: 500000,
-      latitude: -23.55052,
-      longitude: -46.633308,
-      status: "aprovado",
-    },
-    {
-      id: 2,
-      nome: "Imóvel 2",
-      cidade: "São Paulo",
-      tipo: "Casa",
-      valor: 800000,
-      latitude: -23.55052,
-      longitude: -46.633308,
-      status: "pendente",
-    },
-  ],
-}
+// usa `mostrarNotificacao` e `dadosAtuais` globais definidos em outros módulos
 
 window.google = window.google || {}
 
