@@ -10,11 +10,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="js/dados.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/loading.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/navegacao.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/imoveis.js"></script>
+<script src="js/formulario-imovel.js"></script>
+<script src="js/upload-imagens.js"></script>
+<script src="js/usuarios.js"></script>
+<script src="js/mensagens.js"></script>
+<script src="js/agendamentos.js"></script>
+<script src="js/mapa.js"></script>
+<script src="js/init.js"></script>
+
 <body>
-    <script src="auth.js"></script>
-    <script>
-        verificarAutenticacao('inquilino');
-    </script>
 
     <aside class="barra-lateral" id="barraLateral">
         <div class="cabecalho-barra-lateral">
@@ -417,71 +431,5 @@
         <i class="fas fa-check-circle"></i>
         <span id="mensagemNotificacao"></span>
     </div>
-
-    <script>
-        // Navegação entre páginas
-        document.querySelectorAll('.item-navegacao').forEach(item => {
-            item.addEventListener('click', function(e) {
-                if (this.getAttribute('onclick')) return;
-                
-                e.preventDefault();
-                const pagina = this.getAttribute('data-pagina');
-                
-                document.querySelectorAll('.item-navegacao').forEach(nav => nav.classList.remove('active'));
-                this.classList.add('active');
-                
-                document.querySelectorAll('.conteudo-pagina').forEach(conteudo => conteudo.classList.remove('active'));
-                document.getElementById(`pagina-${pagina}`).classList.add('active');
-                
-                const titulos = {
-                    'meu-imovel': 'Meu Imóvel',
-                    'boletos': 'Boletos',
-                    'financiamento': 'Financiamento',
-                    'manutencao': 'Manutenção',
-                    'documentos': 'Documentos'
-                };
-                document.getElementById('tituloPagina').textContent = titulos[pagina];
-                
-                document.getElementById('barraLateral').classList.remove('active');
-            });
-        });
-
-        // Menu mobile
-        document.getElementById('alternarMenuMobile').addEventListener('click', () => {
-            document.getElementById('barraLateral').classList.toggle('active');
-        });
-
-        // Alternar tema
-        document.getElementById('alternarTema').addEventListener('click', function() {
-            document.body.classList.toggle('tema-escuro');
-            const icone = this.querySelector('i');
-            if (document.body.classList.contains('tema-escuro')) {
-                icone.classList.remove('fa-moon');
-                icone.classList.add('fa-sun');
-            } else {
-                icone.classList.remove('fa-sun');
-                icone.classList.add('fa-moon');
-            }
-        });
-
-        // Notificação
-        function mostrarNotificacao(mensagem) {
-            const notificacao = document.getElementById('notificacao');
-            document.getElementById('mensagemNotificacao').textContent = mensagem;
-            notificacao.classList.add('active');
-            setTimeout(() => notificacao.classList.remove('active'), 3000);
-        }
-
-        // Carregar código do imóvel
-        window.addEventListener('DOMContentLoaded', () => {
-            const sessaoStr = localStorage.getItem('sessao_central_imoveis');
-            if (sessaoStr) {
-                const sessao = JSON.parse(sessaoStr);
-                if (sessao.codigoImovel) {
-                    document.getElementById('nomeInquilino').textContent = sessao.codigoImovel;
-                }
-            }
-        });
-    </script>
 </body>
 </html>

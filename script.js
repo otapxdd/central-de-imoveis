@@ -551,6 +551,21 @@ document.addEventListener('DOMContentLoaded', () => {
     filesToUpload = newFilesToUpload;
     fileInput.files = filesToUpload.files;
   }
+
+  // Função exposta para limpar o preview e resetar o input de arquivos
+  // Isso permite que outras funções (ex: salvarImovel, fecharModalImovel) façam a limpeza
+  window.limparPreviewImagens = function () {
+    try {
+      filesToUpload = new DataTransfer();
+      fileInput.value = '';
+      fileInput.files = filesToUpload.files;
+      if (previewArea) previewArea.innerHTML = '';
+      // remover qualquer estado visual do dropZone
+      if (dropZone) dropZone.classList.remove('drag-over');
+    } catch (e) {
+      console.warn('Erro ao limpar preview de imagens:', e);
+    }
+  }
   inicializarAplicacao()
   configurarEventos()
   carregarDadosIniciais()
@@ -990,16 +1005,88 @@ function filtrarImoveis() {
   renderizarTabelaImoveis(filtrados)
 }
 
-function carregarAprovacao() {
-  const pendentes = dadosAtuais.imoveis.filter((i) => i.status === "pendente")
-  document.getElementById("contagemPendentes").textContent = `${pendentes.length} Pendentes`
+function mudarSlide(botao, direcao) {
+    
+    const container = botao.closest('.imagem-slider-container');
+    if (!container) {
+        console.error("Não foi possível encontrar o .imagem-slider-container");
+        return; 
+    }
 
-  const grade = document.getElementById("gradeAprovacao")
+    const trilho = container.querySelector('.slider-trilho');
+    if (!trilho) {
+        console.error("Não foi possível encontrar o .slider-trilho");
+        return; 
+    }
+
+    const totalImagens = parseInt(container.dataset.totalImagens || 1);
+    let indiceAtual = parseInt(trilho.dataset.indiceAtual || 0);
+
+    indiceAtual += direcao;
+    
+    if (indiceAtual < 0) indiceAtual = 0;
+    if (indiceAtual >= totalImagens) indiceAtual = totalImagens - 1;
+    
+    trilho.dataset.indiceAtual = indiceAtual;
+    trilho.style.transform = `translateX(-${indiceAtual * 100}%)`;
+    
+    const setaEsquerda = container.querySelector('.slider-seta.esquerda');
+    const setaDireita = container.querySelector('.slider-seta.direita');
+    
+    if (setaEsquerda) {
+        setaEsquerda.disabled = (indiceAtual === 0);
+    }
+    if (setaDireita) {
+        setaDireita.disabled = (indiceAtual === totalImagens - 1);
+    }
+}
+
+function carregarAprovacao() {
+  const pendentes = dadosAtuais.imoveis.filter((i) => i.status === "pendente");
+  document.getElementById("contagemPendentes").textContent = `${pendentes.length} Pendentes`;
+
+  const grade = document.getElementById("gradeAprovacao");
   grade.innerHTML = pendentes
     .map(
-      (imovel) => `
+      (imovel) => {
+        
+        let sliderHtml = '';
+        const totalImagens = imovel.fotos.length;
+
+        if (totalImagens > 0) {
+            const imagensHtml = imovel.fotos.map(urlFoto => `
+                <img src="${urlFoto}" alt="${imovel.nome}" class="slider-imagem">
+            `).join('');
+            
+            sliderHtml = `
+            <div class="imagem-slider-container" data-total-imagens="${totalImagens}">
+                <div class="slider-trilho" id="trilho-imovel-${imovel.id}" data-indice-atual="0">
+                    ${imagensHtml}
+                </div>
+                
+                ${totalImagens > 1 ? `
+                <button class="slider-seta esquerda" onclick="mudarSlide(this, -1, ${imovel.id})" disabled>
+                    &#10094;
+                </button>
+                <button class="slider-seta direita" onclick="mudarSlide(this, 1, ${imovel.id})">
+                    &#10095;
+                </button>
+                ` : ''}
+            </div>
+            `;
+            
+        } else {
+            sliderHtml = `
+            <div class="imagem-slider-container">
+                <img src="/placeholder.svg?height=200&width=400" alt="Sem foto" class="slider-imagem">
+            </div>
+            `;
+        }
+        return `
         <div class="cartao-imovel">
-            <img src="/placeholder.svg?height=200&width=400" alt="${imovel.nome}" class="imagem-imovel">
+            
+            ${sliderHtml}
+            
             <div class="conteudo-imovel">
                 <div class="cabecalho-imovel">
                     <div>
@@ -1016,23 +1103,23 @@ function carregarAprovacao() {
                 
                 <div class="detalhes-imovel">
                     ${imovel.quartos > 0
-          ? `
+            ? `
                         <div class="detalhe-imovel">
                             <i class="fas fa-bed"></i>
                             <span>${imovel.quartos} quartos</span>
                         </div>
                     `
-          : ""
-        }
+            : ""
+          }
                     ${imovel.banheiros > 0
-          ? `
+            ? `
                         <div class="detalhe-imovel">
                             <i class="fas fa-bath"></i>
                             <span>${imovel.banheiros} banheiros</span>
                         </div>
                     `
-          : ""
-        }
+            : ""
+          }
                     <div class="detalhe-imovel">
                         <i class="fas fa-ruler-combined"></i>
                         <span>${imovel.area}m²</span>
@@ -1053,10 +1140,11 @@ function carregarAprovacao() {
                     </div>
                 </div>
             </div>
-        </div>
-    `,
+            </div>
+      `;
+      }
     )
-    .join("")
+    .join("");
 }
 
 function carregarMapaDoModal(lat, lng) {
@@ -1346,6 +1434,7 @@ function fecharModalImovel() {
   modalOverlay.classList.remove('ativo');
   setTimeout(() => {
     formImovel.reset();
+    if (window.limparPreviewImagens) window.limparPreviewImagens();
   }, 300);
 }
 
@@ -1372,6 +1461,8 @@ async function salvarImovel(event) {
     if (result.success) {
       mostrarNotificacao('Imóvel salvo com sucesso!');
       fecharModalImovel();
+      // Limpa o preview e reseta o input de arquivos (se a função estiver disponível)
+      if (window.limparPreviewImagens) window.limparPreviewImagens();
     } else {
       throw new Error(result.message);
     }

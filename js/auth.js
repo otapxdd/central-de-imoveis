@@ -2,11 +2,12 @@
 // SISTEMA DE AUTENTICAÇÃO
 // ========================================
 
+///////////////!!!! SOMENTE PRA TESTE !!!!
+
 function verificarAutenticacao(tipoRequerido) {
   const sessaoStr = localStorage.getItem("sessao_central_imoveis")
 
   if (!sessaoStr) {
-    // Não há sessão, redirecionar para login
     window.location.href = "login.html"
     return
   }
@@ -23,22 +24,18 @@ function verificarAutenticacao(tipoRequerido) {
     return
   }
 
-  // Verificar se o tipo de usuário está correto
   if (sessao.tipo !== tipoRequerido) {
-    // Tipo de usuário incorreto, redirecionar para a página correta
     if (sessao.tipo === "admin") {
       window.location.href = "index.html"
     } else if (sessao.tipo === "inquilino") {
       window.location.href = "inquilino.html"
     } else {
-      // Sessão inválida
       localStorage.removeItem("sessao_central_imoveis")
       window.location.href = "login.html"
     }
     return
   }
 
-  // Autenticação bem-sucedida
   console.log("[v0] Usuário autenticado:", sessao.tipo)
 }
 
@@ -47,14 +44,11 @@ function fazerLogout(event) {
     event.preventDefault()
   }
 
-  // Remover sessão
   localStorage.removeItem("sessao_central_imoveis")
 
-  // Redirecionar para login
   window.location.href = "login.html"
 }
 
-// Renovar sessão automaticamente a cada 30 minutos
 setInterval(
   () => {
     const sessaoStr = localStorage.getItem("sessao_central_imoveis")

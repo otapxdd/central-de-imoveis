@@ -10,9 +10,54 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        #global-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.7);
+            color: #333;
+            font-size: 1.2rem;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 6px solid #ddd;
+            border-top: 6px solid #D4A843;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 
+    <script src="auth.js"></script>
+    <script>
+        // Verificar autenticação antes de carregar a página
+        verificarAutenticacao('admin');
+    </script>
+
 <body>
+    <div id="global-loading" style="display:none;">
+        <div class="loader"></div><span>Carregando...</span>
+    </div>
     <script src="auth.js"></script>
     <script>
         verificarAutenticacao('admin');
@@ -379,7 +424,7 @@
 
             <section id="pagina-usuarios" class="conteudo-pagina">
                 <div class="cabecalho-pagina">
-                    <h2>Acessos</h1>2>
+                    <h2>Acessos</h2>
                         <button class="btn btn-primario">
                             <i class="fas fa-user-plus"></i> Adicionar Usuário
                         </button>
@@ -653,10 +698,9 @@
         <span id="mensagemNotificacao"></span>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFaqoKZx6uBpP15lvS30RJ5ZRcU_jWuio&callback=initMap"
         async defer></script>
-    <script src="script.js"></script>
 </body>
 
 </html>

@@ -9,37 +9,24 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            const sessaoStr = localStorage.getItem('sessao_central_imoveis');
-            if (!sessaoStr) {
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            const sessao = JSON.parse(sessaoStr);
-            if (sessao.tipo !== 'proprietario') {
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            const agora = new Date().getTime();
-            const umDia = 24 * 60 * 60 * 1000;
-            if (agora - sessao.timestamp > umDia) {
-                localStorage.removeItem('sessao_central_imoveis');
-                window.location.href = 'login.html';
-            }
-        });
-        
-        function fazerLogout(event) {
-            event.preventDefault();
-            localStorage.removeItem('sessao_central_imoveis');
-            window.location.href = 'login.html';
-        }
-    </script>
+<!-- Módulos da aplicação (na ordem) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<script src="js/dados.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/loading.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/navegacao.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/imoveis.js"></script>
+<script src="js/formulario-imovel.js"></script>
+<script src="js/upload-imagens.js"></script>
+<script src="js/usuarios.js"></script>
+<script src="js/mensagens.js"></script>
+<script src="js/agendamentos.js"></script>
+<script src="js/mapa.js"></script>
+<script src="js/init.js"></script>
+<body>
     <aside class="barra-lateral" id="barraLateral">
         <div class="cabecalho-barra-lateral">
             <div class="logo">
@@ -574,85 +561,5 @@
         <i class="fas fa-check-circle"></i>
         <span id="mensagemNotificacao"></span>
     </div>
-
-    <script>
-        document.querySelectorAll('.item-navegacao').forEach(item => {
-            item.addEventListener('click', function(e) {
-                if (this.getAttribute('onclick')) return;
-                
-                e.preventDefault();
-                const pagina = this.getAttribute('data-pagina');
-                
-                document.querySelectorAll('.item-navegacao').forEach(nav => nav.classList.remove('active'));
-                this.classList.add('active');
-                
-                document.querySelectorAll('.conteudo-pagina').forEach(conteudo => conteudo.classList.remove('active'));
-                document.getElementById(`pagina-${pagina}`).classList.add('active');
-                
-                const titulos = {
-                    'meu-imovel': 'Meu Imóvel',
-                    'inquilino': 'Inquilino',
-                    'financeiro': 'Financeiro',
-                    'manutencao': 'Manutenção',
-                    'documentos': 'Documentos',
-                    'configuracoes': 'Configurações'
-                };
-                document.getElementById('tituloPagina').textContent = titulos[pagina];
-                
-                document.getElementById('barraLateral').classList.remove('active');
-            });
-        });
-
-        document.getElementById('alternarMenuMobile').addEventListener('click', () => {
-            document.getElementById('barraLateral').classList.toggle('active');
-        });
-
-        document.getElementById('alternarTema').addEventListener('click', function() {
-            document.body.classList.toggle('tema-escuro');
-            const icone = this.querySelector('i');
-            if (document.body.classList.contains('tema-escuro')) {
-                icone.classList.remove('fa-moon');
-                icone.classList.add('fa-sun');
-            } else {
-                icone.classList.remove('fa-sun');
-                icone.classList.add('fa-moon');
-            }
-        });
-
-        function mostrarNotificacao(mensagem) {
-            const notificacao = document.getElementById('notificacao');
-            document.getElementById('mensagemNotificacao').textContent = mensagem;
-            notificacao.classList.add('active');
-            setTimeout(() => notificacao.classList.remove('active'), 3000);
-        }
-
-        document.querySelectorAll('.formulario-configuracoes').forEach(form => {
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                mostrarNotificacao('Configurações salvas com sucesso!');
-            });
-        });
-
-        const opcoesTema = document.querySelectorAll('input[name="tema"]');
-        opcoesTema.forEach((opcao) => {
-            opcao.addEventListener('change', function () {
-                if (this.value === 'escuro') {
-                    document.body.classList.add('tema-escuro');
-                } else {
-                    document.body.classList.remove('tema-escuro');
-                }
-            });
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const sessaoStr = localStorage.getItem('sessao_central_imoveis');
-            if (sessaoStr) {
-                const sessao = JSON.parse(sessaoStr);
-                if (sessao.codigoImovel) {
-                    document.getElementById('nomeProprietario').textContent = sessao.codigoImovel;
-                }
-            }
-        });
-    </script>
 </body>
 </html>
