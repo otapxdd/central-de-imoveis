@@ -576,7 +576,6 @@ body {
   gap: 1.5rem;
 }
 
-/* Garantir que cada card da grade tenha a mesma altura e permita empurrar os botões para o fim */
 .grade-cartoes {
   grid-auto-rows: 1fr;
   align-items: stretch;
@@ -590,7 +589,6 @@ body {
   transition: var(--transicao);
 }
 
-/* Tornar o card um flex container vertical para permitir o empurrão do footer (ações) */
 .cartao-imovel {
   display: flex;
   flex-direction: column;
@@ -609,7 +607,6 @@ body {
 
 .conteudo-imovel {
   padding: 1.25rem;
-  /* Permitir que o conteúdo cresça para ocupar espaço e empurrar as ações para baixo */
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -663,13 +660,10 @@ body {
 .acoes-imovel {
   display: flex;
   gap: 0.75rem;
-  /* permitir quebra de linha quando necessário para não cortar botões em telas menores */
   flex-wrap: wrap;
-  /* Empurra as ações para o final do card independentemente do conteúdo acima */
   margin-top: auto;
 }
 
-/* Botão de detalhes ocupa toda a largura do card */
 .acoes-imovel .btn-detalhes {
   width: 100%;
   display: inline-flex;
@@ -679,17 +673,15 @@ body {
   margin-bottom: 0.5rem;
 }
 
-/* Grupo que contém aprovar e reprovar lado a lado */
 .acoes-imovel .acao-grupo {
   display: flex;
   gap: 0.5rem;
   width: 100%;
 }
 
-/* Garantir que os botões de ação no grupo ocupem metade cada um */
 .acoes-imovel .acao-grupo .btn {
   flex: 1;
-  min-width: 0; /* permitir encolher igualmente */
+  min-width: 0;
   justify-content: center;
 }
 

@@ -30,9 +30,8 @@ function renderizarTabelaImoveis(imoveis) {
                 <button class="btn btn-icone btn-secundario" onclick="visualizarImovel(${imovel.id})" title="Ver Detalhes">
                     <i class="fas fa-eye"></i>
                 </button>
-                ${
-                  imovel.status === "pendente"
-                    ? `
+                ${imovel.status === "pendente"
+          ? `
                     <button class="btn btn-icone btn-sucesso" onclick="aprovarImovel(${imovel.id})" title="Aprovar">
                         <i class="fas fa-check"></i>
                     </button>
@@ -40,8 +39,8 @@ function renderizarTabelaImoveis(imoveis) {
                         <i class="fas fa-times"></i>
                     </button>
                 `
-                    : ""
-                }
+          : ""
+        }
             </td>
         </tr>
     `,
@@ -70,6 +69,47 @@ function filtrarImoveis() {
   }
 
   renderizarTabelaImoveis(filtrados)
+}
+
+function atualizarImovelLocalmente(id, novosDados = {}) {
+  if (!dadosAtuais || !Array.isArray(dadosAtuais.imoveis)) {
+    return false
+  }
+
+  const indice = dadosAtuais.imoveis.findIndex((imovel) => Number(imovel.id) === Number(id))
+
+  if (indice === -1) {
+    console.warn(`Imóvel com id ${id} não encontrado para atualização local.`)
+    return false
+  }
+
+  dadosAtuais.imoveis[indice] = {
+    ...dadosAtuais.imoveis[indice],
+    ...novosDados,
+  }
+
+  return true
+}
+
+function atualizarVisoesDeImoveis() {
+  if (typeof filtrarImoveis === "function") {
+    filtrarImoveis()
+  } else if (typeof carregarImoveis === "function") {
+    carregarImoveis()
+  }
+
+  if (typeof carregarAprovacao === "function") {
+    carregarAprovacao()
+  }
+
+  if (typeof carregarDashboard === "function") {
+    carregarDashboard()
+  }
+
+  const paginaMapa = document.getElementById("pagina-mapa")
+  if (paginaMapa && paginaMapa.classList.contains("active") && typeof carregarMapa === "function") {
+    carregarMapa()
+  }
 }
 
 function mudarSlide(botao, direcao) {
@@ -131,9 +171,8 @@ function carregarAprovacao() {
             <div class="slider-trilho" id="trilho-imovel-${imovel.id}" data-indice-atual="0">
               ${imagensHtml}
             </div>
-            ${
-              totalImagens > 1
-                ? `
+            ${totalImagens > 1
+            ? `
             <button class="slider-seta esquerda" onclick="mudarSlide(this, -1)" disabled>
               &#10094;
             </button>
@@ -141,8 +180,8 @@ function carregarAprovacao() {
               &#10095;
             </button>
             `
-                : ""
-            }
+            : ""
+          }
           </div>
           `
       } else {
@@ -169,26 +208,24 @@ function carregarAprovacao() {
             </div>
             <p class="preco-imovel">R$ ${Number(imovel.valor).toLocaleString("pt-BR")}</p>
             <div class="detalhes-imovel">
-              ${
-                imovel.quartos > 0
-                  ? `
+              ${imovel.quartos > 0
+          ? `
                 <div class="detalhe-imovel">
                   <i class="fas fa-bed"></i>
                   <span>${imovel.quartos} quartos</span>
                 </div>
               `
-                  : ""
-              }
-              ${
-                imovel.banheiros > 0
-                  ? `
+          : ""
+        }
+              ${imovel.banheiros > 0
+          ? `
                 <div class="detalhe-imovel">
                   <i class="fas fa-bath"></i>
                   <span>${imovel.banheiros} banheiros</span>
                 </div>
               `
-                  : ""
-              }
+          : ""
+        }
               <div class="detalhe-imovel">
                 <i class="fas fa-ruler-combined"></i>
                 <span>${imovel.area}m²</span>
@@ -215,28 +252,28 @@ function carregarAprovacao() {
 }
 
 function visualizarImovel(id) {
-    const imovel = dadosAtuais.imoveis.find((i) => i.id == id);
+  const imovel = dadosAtuais.imoveis.find((i) => i.id == id);
 
-    if (!imovel) {
-        mostrarNotificacao("ERRO: Imóvel não encontrado (ID: " + id + ")", "erro");
-        return;
-    }
+  if (!imovel) {
+    mostrarNotificacao("ERRO: Imóvel não encontrado (ID: " + id + ")", "erro");
+    return;
+  }
 
-    const lat = Number.parseFloat(imovel.latitude);
-    const lng = Number.parseFloat(imovel.longitude);
-    const temCoordenadasValidas = !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90;
+  const lat = Number.parseFloat(imovel.latitude);
+  const lng = Number.parseFloat(imovel.longitude);
+  const temCoordenadasValidas = !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90;
 
-    let htmlLocalizacao = "";
+  let htmlLocalizacao = "";
 
-    if (temCoordenadasValidas) {
-        htmlLocalizacao = `
+  if (temCoordenadasValidas) {
+    htmlLocalizacao = `
       <div style="margin-top: 1.5rem;">
         <h4 style="margin-bottom: 0.75rem;">Localização</h4>
         <div id="mapa-no-modal" style="height: 300px; width: 100%; border-radius: 8px; background: #f0f0f0;"></div>
       </div>
     `;
-    } else {
-        htmlLocalizacao = `
+  } else {
+    htmlLocalizacao = `
       <div style="margin-top: 1.5rem;">
         <h4 style="margin-bottom: 0.75rem;">Localização</h4>
         <div style="background: var(--fundo-secundario); padding: 1rem; border-radius: 8px; text-align: center;">
@@ -245,35 +282,43 @@ function visualizarImovel(id) {
         </div>
       </div>
     `;
-    }
+  }
+  let htmlGaleria = "";
 
-    let htmlGaleria = "";
-    const urlBaseImagens = "/"; 
 
-    if (imovel.fotos && imovel.fotos.length > 0) {
-        const tagsImagens = imovel.fotos.map((caminhoFoto, index) => {
-            const urlCompleta = 'central-de-imoveisadmin/'+caminhoFoto.startsWith(urlBaseImagens) ? caminhoFoto : `${urlBaseImagens}${caminhoFoto}`;
-            return `<img src="${urlCompleta}" alt="Foto ${index + 1} do Imóvel">`;
-        }).join('');
+  if (imovel.fotos && imovel.fotos.length > 0) {
 
-        htmlGaleria = `
+    const tagsImagens = imovel.fotos.map((caminhoFoto, index) => {
+
+      const URL_BASE_PROJETO = "/central-de-imoveisadmin/";
+
+      const urlCompleta = `${URL_BASE_PROJETO}${caminhoFoto}`;
+
+      return `
+                <a href="${urlCompleta}" 
+                    data-fancybox="galeria-${imovel.id}" 
+                    data-caption="${imovel.nome} - Foto ${index + 1} de ${imovel.fotos.length}">
+                    <img src="${urlCompleta}" alt="Foto ${index + 1} do Imóvel">
+                </a>
+            `;
+    }).join('');
+
+    htmlGaleria = `
             <div class="galeria-modal">
                 ${tagsImagens}
             </div>
         `;
-    } else {
-        // Fallback se não houver fotos, pode mostrar um placeholder
-        htmlGaleria = `
+  } else {
+    htmlGaleria = `
             <div class="galeria-modal">
                 <img src="/placeholder.svg?height=200&width=300" alt="Imóvel sem fotos">
             </div>
         `;
-    }
-    // --- FIM DO NOVO BLOCO ---
+  }
 
 
-    const corpoModal = document.getElementById("corpoModal");
-    corpoModal.innerHTML = `
+  const corpoModal = document.getElementById("corpoModal");
+  corpoModal.innerHTML = `
     
     ${htmlGaleria} <div class="info-modal">
       <div class="item-info-modal">
@@ -328,14 +373,14 @@ function visualizarImovel(id) {
     ${htmlLocalizacao}
   `;
 
-    document.getElementById("tituloModal").textContent = imovel.nome;
-    abrirModal("modalImovel");
+  document.getElementById("tituloModal").textContent = imovel.nome;
+  abrirModal("modalImovel");
 
-    if (temCoordenadasValidas) {
-        setTimeout(() => {
-            carregarMapaDoModal(lat, lng);
-        }, 150);
-    }
+  if (temCoordenadasValidas) {
+    setTimeout(() => {
+      carregarMapaDoModal(lat, lng);
+    }, 150);
+  }
 }
 function aprovarImovel(id) {
   mostrarModalConfirmacao("Aprovar Imóvel", "Tem certeza que deseja aprovar este imóvel?", async () => {
@@ -353,9 +398,16 @@ function aprovarImovel(id) {
       if (!response.ok) {
         throw new Error(resultado.erro || "Erro ao conectar com o servidor.")
       }
-      carregarImoveis()
-      carregarAprovacao()
-      mostrarNotificacao("Imóvel aprovado com sucesso!")
+      const atualizouLocal = atualizarImovelLocalmente(id, { status: "aprovado" })
+
+      if (atualizouLocal) {
+        atualizarVisoesDeImoveis()
+      } else if (typeof sincronizarImoveisDoServidor === "function") {
+        sincronizarImoveisDoServidor()
+      }
+
+      const mensagemSucesso = resultado.mensagem || "Imóvel aprovado com sucesso!"
+      mostrarNotificacao(mensagemSucesso)
     } catch (error) {
       console.error("Erro ao aprovar imóvel:", error)
       mostrarNotificacao(`Erro ao aprovar: ${error.message}`, "erro")
@@ -383,9 +435,16 @@ function reprovarImovel(id) {
           throw new Error(resultado.erro || "Erro ao conectar com o servidor.")
         }
 
-        carregarImoveis()
-        carregarAprovacao()
-        mostrarNotificacao("Imóvel reprovado", "aviso")
+        const atualizouLocal = atualizarImovelLocalmente(id, { status: "reprovado" })
+
+        if (atualizouLocal) {
+          atualizarVisoesDeImoveis()
+        } else if (typeof sincronizarImoveisDoServidor === "function") {
+          sincronizarImoveisDoServidor()
+        }
+
+        const mensagemSucesso = resultado.mensagem || "Imóvel reprovado"
+        mostrarNotificacao(mensagemSucesso, "aviso")
       } catch (error) {
         console.error("Erro ao reprovar imóvel:", error)
         mostrarNotificacao(`Erro ao reprovar: ${error.message}`, "erro")

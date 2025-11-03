@@ -3,16 +3,16 @@
 // Gerencia adição e edição de imóveis
 // ========================================
 
-const cepInput = document.getElementById("imovel-cep")
-const cepLoading = document.getElementById("cep-loading")
-const modalOverlay = document.getElementById("modal-imovel-overlay")
-const formImovel = document.getElementById("form-imovel")
-
-function mostrarNotificacao(mensagem) {
-  alert(mensagem)
-}
+let cepInput
+let cepLoading
+let modalOverlay
+let formImovel
 
 async function buscarCep() {
+  if (!cepInput || !cepLoading) {
+    return
+  }
+
   const cep = cepInput.value.replace(/\D/g, "")
   if (cep.length !== 8) {
     return
@@ -55,15 +55,36 @@ async function buscarCep() {
 }
 
 function abrirModalAdicionarImovel() {
-  modalOverlay.classList.add("ativo")
+    const modalOverlay = document.getElementById("modal-imovel-overlay");
+
+    if (modalOverlay) {
+        modalOverlay.classList.add("ativo");
+    } else {
+        console.error("ERRO: Não encontrei o elemento com ID 'modal-imovel-overlay'");
+    }
 }
 
 function fecharModalImovel() {
-  modalOverlay.classList.remove("ativo")
-  setTimeout(() => {
-    formImovel.reset()
-    if (window.limparPreviewImagens) window.limparPreviewImagens()
-  }, 300)
+    const modalOverlay = document.getElementById("modal-imovel-overlay");
+    const formImovel = document.getElementById("form-imovel");
+    if (modalOverlay) {
+        modalOverlay.classList.remove("ativo");
+    } else {
+        console.error("ERRO: Não encontrei 'modal-imovel-overlay' para fechar.");
+        return;
+    }
+
+    setTimeout(() => {
+        if (formImovel) {
+            formImovel.reset();
+        } else {
+            console.error("ERRO: Não encontrei 'form-imovel' para resetar.");
+        }
+        
+        if (window.limparPreviewImagens) {
+            window.limparPreviewImagens();
+        }
+    }, 300);
 }
 
 async function salvarImovel(event) {
@@ -97,18 +118,25 @@ async function salvarImovel(event) {
   }
 }
 
-if (formImovel) {
-  formImovel.addEventListener("submit", salvarImovel)
-}
+document.addEventListener("DOMContentLoaded", () => {
+  cepInput = document.getElementById("imovel-cep")
+  cepLoading = document.getElementById("cep-loading")
+  modalOverlay = document.getElementById("modal-imovel-overlay")
+  formImovel = document.getElementById("form-imovel")
 
-if (modalOverlay) {
-  modalOverlay.addEventListener("click", (event) => {
-    if (event.target === modalOverlay) {
-      fecharModalImovel()
-    }
-  })
-}
+  if (formImovel) {
+    formImovel.addEventListener("submit", salvarImovel)
+  }
 
-if (cepInput) {
-  cepInput.addEventListener("blur", buscarCep)
-}
+  if (modalOverlay) {
+    modalOverlay.addEventListener("click", (event) => {
+      if (event.target === modalOverlay) {
+        fecharModalImovel()
+      }
+    })
+  }
+
+  if (cepInput) {
+    cepInput.addEventListener("blur", buscarCep)
+  }
+})

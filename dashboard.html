@@ -10,72 +10,35 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/dados.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/loading.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/imoveis.js"></script>
-    <script src="js/usuarios.js"></script>
-    <script src="js/mensagens.js"></script>
-    <script src="js/mapa.js"></script>
-    <script src="js/formulario-imovel.js"></script>
-    <script src="js/upload-imagens.js"></script>
-    <script src="js/navegacao.js"></script>
-    <script src="js/dashboard.js"></script>
-    <script src="js/init.js"></script>
+    <script src="js/dados.js" defer></script>
+    <script src="js/utils.js" defer></script>
+    <script src="js/ui.js" defer></script>
+    <script src="js/loading.js" defer></script>
+    <script src="js/mensagens.js" defer></script>
+    <script src="js/api.js" defer></script>
+    <script src="js/imoveis.js" defer></script>
+    <script src="js/usuarios.js" defer></script>
+    
+    <script src="js/mapa.js" defer></script>
+    <script src="js/formulario-imovel.js" defer></script>
+    <script src="js/upload-imagens.js" defer></script>
+    <script src="js/navegacao.js" defer></script>
+    <script src="js/dashboard.js" defer></script>
+    <script src="js/init.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
 
-    <style>
-        #global-loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            background: rgba(255, 255, 255, 0.7);
-            color: #333;
-            font-size: 1.2rem;
-        }
-
-        .loader {
-            width: 48px;
-            height: 48px;
-            border: 6px solid #ddd;
-            border-top: 6px solid #D4A843;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-bottom: 12px;
-        }
-
-        @keyframes spin {
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
 </head>
 
-    <script src="auth.js"></script>
-    <script>
-        // Verificar autenticação antes de carregar a página
-        verificarAutenticacao('admin');
-    </script>
+<script src="auth.js"></script>
+<script>
+    verificarAutenticacao('admin');
+</script>
 
 <body>
-    <div id="global-loading" style="display:none;">
-        <div class="loader"></div><span>Carregando...</span>
-    </div>
-    <script src="auth.js"></script>
-    <script>
-        verificarAutenticacao('admin');
-    </script>
 
     <aside class="barra-lateral" id="barraLateral">
         <div class="cabecalho-barra-lateral">
@@ -101,10 +64,10 @@
                 <i class="fas fa-check-circle"></i>
                 <span>Aprovação de Imóveis</span>
             </a>
-            <a href="#usuarios" class="item-navegacao" data-pagina="usuarios">
+            <!-- <a href="#usuarios" class="item-navegacao" data-pagina="usuarios">
                 <i class="fas fa-users"></i>
-                <span>Acessos</span>
-            </a>
+                <span>Usuários</span>
+            </a> -->
             <a href="#mensagens" class="item-navegacao" data-pagina="mensagens">
                 <i class="fas fa-envelope"></i>
                 <span>Mensagens</span>
@@ -284,6 +247,12 @@
                         <div class="form-grid">
 
                             <div class="grid-span-2">
+                                <label for="imovel-nome">Nome do Imóvel (Título do Anúncio)</label>
+                                <input type="text" id="imovel-nome" name="nome" required
+                                    placeholder="Ex: Casa Aconchegante no Centro">
+                            </div>
+
+                            <div class="grid-span-2">
                                 <label for="proprietario-nome">Nome do Proprietário</label>
                                 <input type="text" id="proprietario-nome" required name="proprietario_nome"
                                     placeholder="Nome do cliente">
@@ -436,12 +405,12 @@
                 <div class="grade-cartoes" id="gradeAprovacao"></div>
             </section>
 
-            <section id="pagina-usuarios" class="conteudo-pagina">
+            <!-- <section id="pagina-usuarios" class="conteudo-pagina">
                 <div class="cabecalho-pagina">
                     <h2>Acessos</h2>
-                        <button class="btn btn-primario">
-                            <i class="fas fa-user-plus"></i> Adicionar Usuário
-                        </button>
+                    <button class="btn btn-primario">
+                        <i class="fas fa-user-plus"></i> Adicionar Usuário
+                    </button>
                 </div>
 
                 <div class="barra-filtros">
@@ -469,7 +438,7 @@
                         <tbody id="corpoTabelaUsuarios"></tbody>
                     </table>
                 </div>
-            </section>
+            </section> -->
 
 
             <section id="pagina-mensagens" class="conteudo-pagina">
@@ -685,7 +654,9 @@
             <div class="rodape-modal">
                 <button class="btn btn-secundario" onclick="fecharModal('modalMensagem')">Fechar</button>
                 <button class="btn btn-primario">
-                    <i class="fas fa-reply"></i> Responder
+                    <a id="btnResponderWpp" class="btn btn-primario" href="#" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-reply"></i> Responder
+                    </a>
                 </button>
             </div>
         </div>
@@ -712,7 +683,7 @@
         <span id="mensagemNotificacao"></span>
     </div>
 
-    
+
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFaqoKZx6uBpP15lvS30RJ5ZRcU_jWuio&callback=initMap"
         async defer></script>
 </body>

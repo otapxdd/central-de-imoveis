@@ -161,3 +161,48 @@ async function deletarDados(url, mensagemSucesso = "Dados deletados com sucesso!
     return false
   }
 }
+
+async function sincronizarImoveisDoServidor(opcoes = {}) {
+  const { mostrarFeedback = false } = opcoes
+
+  try {
+    if (mostrarFeedback) {
+      mostrarLoading("Atualizando imóveis...")
+    }
+
+    const response = await fetch("api/imoveis.php", { cache: "no-store" })
+
+    if (!response.ok) {
+      throw new Error(`Erro HTTP: ${response.status}`)
+    }
+
+    const imoveisAtualizados = await response.json()
+
+    if (!Array.isArray(imoveisAtualizados)) {
+      throw new Error("Formato de dados inesperado ao atualizar imóveis.")
+    }
+
+    dadosAtuais.imoveis = imoveisAtualizados
+
+    if (typeof atualizarVisoesDeImoveis === "function") {
+      atualizarVisoesDeImoveis()
+    } else if (typeof carregarImoveis === "function") {
+      carregarImoveis()
+      if (typeof carregarAprovacao === "function") {
+        carregarAprovacao()
+      }
+      if (typeof carregarDashboard === "function") {
+        carregarDashboard()
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao sincronizar imóveis do servidor:", error)
+    if (typeof mostrarNotificacao === "function") {
+      mostrarNotificacao(`Não foi possível atualizar a lista de imóveis: ${error.message}`, "erro")
+    }
+  } finally {
+    if (mostrarFeedback) {
+      ocultarLoading()
+    }
+  }
+}
