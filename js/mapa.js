@@ -122,6 +122,8 @@ async function carregarMapa() {
   }
 }
 
+
+
 function renderizarMarcadoresMapa(imoveis) {
   if (!window.mapaGoogle || typeof window.google === "undefined" || !window.google.maps) return
 
@@ -187,19 +189,52 @@ function renderizarMarcadoresMapa(imoveis) {
 }
 
 function renderizarListaImoveisMapa(imoveis) {
-  const lista = document.getElementById("listaImoveisMapa")
-  if (!lista) return
+  const lista = document.getElementById("listaImoveisMapa");
+  if (!lista) return;
 
   if (imoveis.length === 0) {
-    lista.innerHTML = "<p>Nenhum imóvel encontrado com estes filtros.</p>"
-    return
+    lista.innerHTML = "<p>Nenhum imóvel encontrado com estes filtros.</p>";
+    return;
   }
 
   lista.innerHTML = imoveis
-    .map(
-      (imovel) => `
+    .map((imovel) => {
+      const imagensHTML =
+        imovel.fotos && imovel.fotos.length > 0
+          ? imovel.fotos
+              .map(
+                (url) => `
+                <div class="imagem-slide">
+                  <img src="${url}" alt="${imovel.nome}" class="imagem-imovel" style="height:150px; width:100%; object-fit:cover;">
+                </div>
+              `
+              )
+              .join("")
+          : `
+                <div class="imagem-slide">
+                  <img src="/placeholder.svg?height=150&width=280" alt="Sem imagem" class="imagem-imovel" style="height:150px; width:100%; object-fit:cover;">
+                </div>
+              `;
+
+      const sliderHTML = `
+        <div class="imagem-slider-container" 
+             data-total-imagens="${imovel.fotos?.length || 1}" 
+             style="overflow: hidden; position: relative;"> 
+          
+          <button class="slider-seta esquerda" onclick="event.stopPropagation(); mudarSlide(this, -1)">&#10094;</button>
+          
+          <div class="imagem-slider-trilho" id="trilho-imovel-${imovel.id}" data-indice-atual="0" 
+               style="display:flex; transition:transform 0.3s ease;">
+            ${imagensHTML}
+          </div>
+
+          <button class="slider-seta direita" onclick="event.stopPropagation(); mudarSlide(this, 1)">&#10095;</button>
+        </div>
+      `;
+
+      return `
         <div class="cartao-imovel" style="cursor: pointer;" onclick="focarNoMapa(${imovel.latitude}, ${imovel.longitude})">
-            <img src="/placeholder.svg?height=150&width=280" alt="${imovel.nome}" class="imagem-imovel" style="height: 150px;">
+            ${sliderHTML}
             <div class="conteudo-imovel">
                 <h4 class="titulo-imovel" style="font-size: 1rem;">${imovel.nome}</h4>
                 <p class="localizacao-imovel">
@@ -214,9 +249,44 @@ function renderizarListaImoveisMapa(imoveis) {
                 </button>
             </div>
         </div>
-    `,
-    )
-    .join("")
+      `;
+    })
+    .join("");
+}
+function mudarSlide(botao, direcao) {
+  const container = botao.closest(".imagem-slider-container");
+  if (!container) {
+    console.error("Não foi possível encontrar o .imagem-slider-container");
+    return;
+  }
+
+  const trilho = container.querySelector(".imagem-slider-trilho"); 
+  
+  if (!trilho) {
+    console.error("Não foi possível encontrar o .imagem-slider-trilho"); 
+    return;
+  }
+
+  const totalImagens = Number.parseInt(container.dataset.totalImagens || 1);
+  let indiceAtual = Number.parseInt(trilho.dataset.indiceAtual || 0);
+
+  indiceAtual += direcao;
+
+  if (indiceAtual < 0) indiceAtual = 0;
+  if (indiceAtual >= totalImagens) indiceAtual = totalImagens - 1;
+
+  trilho.dataset.indiceAtual = indiceAtual;
+  trilho.style.transform = `translateX(-${indiceAtual * 100}%)`;
+
+  const setaEsquerda = container.querySelector(".slider-seta.esquerda");
+  const setaDireita = container.querySelector(".slider-seta.direita");
+
+  if (setaEsquerda) {
+    setaEsquerda.disabled = indiceAtual === 0;
+  }
+  if (setaDireita) {
+    setaDireita.disabled = indiceAtual === totalImagens - 1;
+  }
 }
 
 async function filtrarImoveisMapa() {
