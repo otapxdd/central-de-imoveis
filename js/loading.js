@@ -3,10 +3,14 @@
 // Gerencia indicadores de carregamento
 // ========================================
 
+let contadorLoading = 0
+
 /**
  * @param {string} 
  */
 function mostrarLoading(mensagem = "Carregando...") {
+  contadorLoading++
+  
   let loading = document.getElementById("loadingGlobal")
 
   if (!loading) {
@@ -31,9 +35,14 @@ function mostrarLoading(mensagem = "Carregando...") {
 }
 
 function ocultarLoading() {
-  const loading = document.getElementById("loadingGlobal")
-  if (loading) {
-    loading.classList.remove("active")
+  contadorLoading = Math.max(0, contadorLoading - 1)
+  
+  // Só oculta se não houver mais requisições em andamento
+  if (contadorLoading === 0) {
+    const loading = document.getElementById("loadingGlobal")
+    if (loading) {
+      loading.classList.remove("active")
+    }
   }
 }
 
@@ -72,4 +81,15 @@ async function fetchComLoading(url, opcoes = {}, mensagemLoading = "Carregando..
   } finally {
     ocultarLoading()
   }
+}
+
+/**
+ * Wrapper para fetch que automaticamente mostra/oculta loading
+ * @param {string} url
+ * @param {object} opcoes
+ * @param {string} mensagemLoading
+ * @returns {Promise<Response>}
+ */
+async function fetchComLoadingAuto(url, opcoes = {}, mensagemLoading = "Carregando...") {
+  return fetchComLoading(url, opcoes, mensagemLoading)
 }

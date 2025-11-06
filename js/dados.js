@@ -1,7 +1,7 @@
-// // ========================================
-// // MÓDULO DE DADOS
-// // Gerencia dados simulados e dados atuais
-// // ========================================
+// ========================================
+// MÓDULO DE DADOS
+// Gerencia dados simulados e dados atuais
+// ========================================
 
 // const dadosSimulados = {
 //   imoveis: [
@@ -426,10 +426,16 @@
 //   ],
 // }
 
-// const dadosAtuais = {
-//   imoveis: [...dadosSimulados.imoveis],
-//   usuarios: [...dadosSimulados.usuarios],
-//   mensagens: [...dadosSimulados.mensagens],
-//   agendamentos: [...dadosSimulados.agendamentos],
-//   categorias: [...dadosSimulados.categorias],
-// }
+// Inicializa dadosAtuais como objeto vazio - será populado pela API
+const dadosAtuais = {
+  imoveis: [],
+  usuarios: [],
+  mensagens: [],
+  agendamentos: [],
+  categorias: [],
+}
+
+// Garante que dadosAtuais esteja no escopo global
+if (typeof window !== "undefined") {
+  window.dadosAtuais = dadosAtuais
+}

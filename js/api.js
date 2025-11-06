@@ -61,7 +61,7 @@ async function carregarDadosIniciais() {
       carregarDashboard()
       carregarImoveis()
       carregarAprovacao()
-      carregarUsuarios()
+      // carregarUsuarios()
       carregarMensagens()
       ocultarLoading()
     }, 200)

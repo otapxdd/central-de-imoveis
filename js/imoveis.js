@@ -6,7 +6,12 @@
 // utilitários e UI já fornecem helpers (obterClasseBadgeStatus, mostrarNotificacao, abrirModal, etc.)
 
 function carregarImoveis() {
+  if (!dadosAtuais || !Array.isArray(dadosAtuais.imoveis)) {
+    console.warn("dadosAtuais.imoveis não está disponível ainda")
+    return
+  }
   renderizarTabelaImoveis(dadosAtuais.imoveis)
+  popularFiltros()
 }
 
 function renderizarTabelaImoveis(imoveis) {
@@ -48,7 +53,99 @@ function renderizarTabelaImoveis(imoveis) {
     .join("")
 }
 
+async function popularFiltros() {
+  await popularFiltroTipo()
+  
+  popularFiltroCidade()
+}
+
+async function popularFiltroTipo() {
+  const filtroTipo = document.getElementById("filtroTipo")
+  if (!filtroTipo) return
+
+  try {
+    const response = await fetchComLoading("api/categorias.php", {}, "Carregando tipos...")
+    if (!response.ok) {
+      console.warn("Erro ao carregar categorias para filtro")
+      return
+    }
+
+    const categorias = await response.json()
+    
+    if (!Array.isArray(categorias)) {
+      console.warn("Formato de categorias inválido")
+      return
+    }
+
+    // Salva o valor atual se houver
+    const valorAtual = filtroTipo.value
+
+    // Limpa opções exceto a primeira (Todos os Tipos)
+    filtroTipo.innerHTML = '<option value="">Todos os Tipos</option>'
+
+    // Adiciona as categorias do banco
+    categorias.forEach((categoria) => {
+      const option = document.createElement("option")
+      option.value = categoria.nome // Usa o nome exato do banco
+      option.textContent = categoria.nome
+      option.dataset.id = categoria.id
+      filtroTipo.appendChild(option)
+    })
+
+    // Restaura o valor anterior se ainda existir
+    if (valorAtual) {
+      const opcaoExistente = Array.from(filtroTipo.options).find(
+        (opt) => opt.value === valorAtual
+      )
+      if (opcaoExistente) {
+        filtroTipo.value = valorAtual
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao popular filtro de tipos:", error)
+  }
+}
+
+function popularFiltroCidade() {
+  const filtroCidade = document.getElementById("filtroCidade")
+  if (!filtroCidade || !dadosAtuais.imoveis || !Array.isArray(dadosAtuais.imoveis)) {
+    return
+  }
+
+  // Salva o valor atual se houver
+  const valorAtual = filtroCidade.value
+
+  // Extrai cidades únicas dos imóveis
+  const cidades = [...new Set(dadosAtuais.imoveis.map((i) => i.cidade).filter(Boolean))].sort()
+
+  // Limpa opções exceto a primeira (Todas as Cidades)
+  filtroCidade.innerHTML = '<option value="">Todas as Cidades</option>'
+
+  // Adiciona as cidades encontradas
+  cidades.forEach((cidade) => {
+    const option = document.createElement("option")
+    option.value = cidade
+    option.textContent = cidade
+    filtroCidade.appendChild(option)
+  })
+
+  // Restaura o valor anterior se ainda existir
+  if (valorAtual) {
+    const opcaoExistente = Array.from(filtroCidade.options).find(
+      (opt) => opt.value === valorAtual
+    )
+    if (opcaoExistente) {
+      filtroCidade.value = valorAtual
+    }
+  }
+}
+
 function filtrarImoveis() {
+  if (!dadosAtuais || !Array.isArray(dadosAtuais.imoveis)) {
+    console.warn("dadosAtuais.imoveis não está disponível ainda")
+    return
+  }
+  
   const status = document.getElementById("filtroStatus").value
   const tipo = document.getElementById("filtroTipo").value
   const cidade = document.getElementById("filtroCidade").value
@@ -57,7 +154,12 @@ function filtrarImoveis() {
   let filtrados = dadosAtuais.imoveis
 
   if (status) filtrados = filtrados.filter((i) => i.status === status)
-  if (tipo) filtrados = filtrados.filter((i) => i.tipo === tipo)
+  if (tipo) {
+    // Compara o tipo do imóvel com o valor do filtro (case-insensitive para flexibilidade)
+    filtrados = filtrados.filter((i) => 
+      i.tipo && i.tipo.toLowerCase().trim() === tipo.toLowerCase().trim()
+    )
+  }
   if (cidade) filtrados = filtrados.filter((i) => i.cidade === cidade)
   if (busca) {
     const somenteNumeros = /^\d+$/.test(busca)
@@ -92,6 +194,9 @@ function atualizarImovelLocalmente(id, novosDados = {}) {
 }
 
 function atualizarVisoesDeImoveis() {
+  // Atualiza os filtros de cidade quando os imóveis mudam
+  popularFiltroCidade()
+  
   if (typeof filtrarImoveis === "function") {
     filtrarImoveis()
   } else if (typeof carregarImoveis === "function") {
@@ -148,6 +253,10 @@ function mudarSlide(botao, direcao) {
 }
 
 function carregarAprovacao() {
+  if (!dadosAtuais || !Array.isArray(dadosAtuais.imoveis)) {
+    console.warn("dadosAtuais.imoveis não está disponível ainda")
+    return
+  }
   const pendentes = dadosAtuais.imoveis.filter((i) => i.status === "pendente")
   document.getElementById("contagemPendentes").textContent = `${pendentes.length} Pendentes`
 
@@ -252,6 +361,11 @@ function carregarAprovacao() {
 }
 
 function visualizarImovel(id) {
+  if (!dadosAtuais || !Array.isArray(dadosAtuais.imoveis)) {
+    mostrarNotificacao("Dados não disponíveis. Aguarde o carregamento.", "erro");
+    return;
+  }
+  
   const imovel = dadosAtuais.imoveis.find((i) => i.id == id);
 
   if (!imovel) {
@@ -385,13 +499,13 @@ function visualizarImovel(id) {
 function aprovarImovel(id) {
   mostrarModalConfirmacao("Aprovar Imóvel", "Tem certeza que deseja aprovar este imóvel?", async () => {
     try {
-      const response = await fetch("api/aprovarImovel.php", {
+      const response = await fetchComLoading("api/aprovarImovel.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ id: id }),
-      })
+      }, "Aprovando imóvel...")
 
       const resultado = await response.json()
 
@@ -421,13 +535,13 @@ function reprovarImovel(id) {
     "Tem certeza que deseja reprovar este imóvel? Esta ação pode ser revertida posteriormente.",
     async () => {
       try {
-        const response = await fetch("api/reprovarImovel.php", {
+        const response = await fetchComLoading("api/reprovarImovel.php", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ id: id }),
-        })
+        }, "Reprovando imóvel...")
 
         const resultado = await response.json()
 

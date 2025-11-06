@@ -98,7 +98,7 @@ async function carregarMapa() {
   }
 
   try {
-    const response = await fetch("api/mapa.php")
+    const response = await fetchComLoading("api/mapa.php", {}, "Carregando mapa...")
     if (!response.ok) throw new Error("Falha ao carregar dados do mapa")
 
     const imoveis = await response.json()
@@ -202,19 +202,15 @@ function renderizarListaImoveisMapa(imoveis) {
       const imagensHTML =
         imovel.fotos && imovel.fotos.length > 0
           ? imovel.fotos
-              .map(
-                (url) => `
-                <div class="imagem-slide">
-                  <img src="${url}" alt="${imovel.nome}" class="imagem-imovel" style="height:150px; width:100%; object-fit:cover;">
-                </div>
-              `
-              )
-              .join("")
+            .map(
+              (url) => `
+                    <img src="${url}" alt="${imovel.nome}" class="slider-imagem" style="height:150px; width:100%; object-fit:cover;">
+                  `
+            )
+            .join("")
           : `
-                <div class="imagem-slide">
-                  <img src="/placeholder.svg?height=150&width=280" alt="Sem imagem" class="imagem-imovel" style="height:150px; width:100%; object-fit:cover;">
-                </div>
-              `;
+                    <img src="https://centraldeimoveisrp.com.br/portal/imagem/img_default/img_default.jpg" alt="Sem imagem" class="slider-imagem" style="height:150px; width:100%; object-fit:cover;">
+                  `;
 
       const sliderHTML = `
         <div class="imagem-slider-container" 
@@ -260,10 +256,10 @@ function mudarSlide(botao, direcao) {
     return;
   }
 
-  const trilho = container.querySelector(".imagem-slider-trilho"); 
-  
+  const trilho = container.querySelector(".imagem-slider-trilho");
+
   if (!trilho) {
-    console.error("Não foi possível encontrar o .imagem-slider-trilho"); 
+    console.error("Não foi possível encontrar o .imagem-slider-trilho");
     return;
   }
 
@@ -306,7 +302,7 @@ async function filtrarImoveisMapa() {
   }
 
   try {
-    const response = await fetch(`api/mapa.php?${params}`)
+    const response = await fetchComLoading(`api/mapa.php?${params}`, {}, "Filtrando mapa...")
     if (!response.ok) throw new Error("Falha ao filtrar dados")
 
     const imoveisFiltrados = await response.json()

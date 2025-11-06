@@ -10,7 +10,7 @@ const graficosAtivos = {
 
 async function carregarDashboard() {
   try {
-    const response = await fetch("api/imoveis.php")
+    const response = await fetchComLoading("api/imoveis.php", {}, "Carregando dashboard...")
     if (!response.ok) {
       throw new Error(`Erro ao buscar dados: ${response.statusText}`)
     }

@@ -100,4 +100,30 @@ function configurarEventos() {
   if (alternarTema && typeof alternarTemaEscuro === "function") {
     alternarTema.addEventListener("click", alternarTemaEscuro)
   }
+
+  // Configurar eventos dos filtros de imóveis
+  configurarFiltrosImoveis()
+}
+
+function configurarFiltrosImoveis() {
+  const filtroStatus = document.getElementById("filtroStatus")
+  const filtroTipo = document.getElementById("filtroTipo")
+  const filtroCidade = document.getElementById("filtroCidade")
+  const buscarImovel = document.getElementById("buscarImovel")
+
+  if (filtroStatus && typeof filtrarImoveis === "function") {
+    filtroStatus.addEventListener("change", filtrarImoveis)
+  }
+
+  if (filtroTipo && typeof filtrarImoveis === "function") {
+    filtroTipo.addEventListener("change", filtrarImoveis)
+  }
+
+  if (filtroCidade && typeof filtrarImoveis === "function") {
+    filtroCidade.addEventListener("change", filtrarImoveis)
+  }
+
+  if (buscarImovel && typeof filtrarImoveis === "function") {
+    buscarImovel.addEventListener("input", filtrarImoveis)
+  }
 }

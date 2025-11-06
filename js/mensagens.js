@@ -1,47 +1,80 @@
-let dadosAtuais = { mensagens: [] };
+// ========================================
+// MÓDULO DE MENSAGENS
+// Gerencia mensagens do sistema
+// ========================================
 
 async function carregarMensagens() {
-  try {
-    const response = await axios.get("api/mensagens.php");
+  try {
+    // Garante que dadosAtuais existe
+    if (typeof dadosAtuais === "undefined") {
+      console.error("dadosAtuais não está definido")
+      return
+    }
+    
+    const response = await fetchComLoading("api/mensagens.php", {}, "Carregando mensagens...");
 
-    if (response.data.status === "ok") {
-      dadosAtuais.mensagens = response.data.mensagens;
-    } else {
-      console.error("Erro ao carregar mensagens:", response.data.mensagem);
-    }
+    if (!response.ok) {
+      throw new Error(`Erro HTTP: ${response.status}`);
+    }
 
-    const naoLidas = dadosAtuais.mensagens.filter((m) => m.status_leitura === "N").length;
-    document.getElementById("contagemNaoLidas").textContent = `${naoLidas} Não Lidas`;
+    const data = await response.json();
 
-    const listaMensagens = document.getElementById("listaMensagens");
-    listaMensagens.innerHTML = dadosAtuais.mensagens
-    .map(
-        (msg) => `
-          <div class="item-mensagem ${msg.status_leitura === "N" ? "nao-lida" : ""}" onclick="visualizarMensagem(${msg.id_mensagem})">
-              
-            <div class="avatar-mensagem">
-              ${msg.email_remetente?.charAt(0)?.toUpperCase() || '?'}
+    // Verifica se a resposta tem o formato esperado
+    if (data.status === "ok" && Array.isArray(data.mensagens)) {
+      dadosAtuais.mensagens = data.mensagens;
+    } else if (Array.isArray(data)) {
+      // Se a resposta for diretamente um array
+      dadosAtuais.mensagens = data;
+    } else {
+      console.error("Formato de dados inesperado:", data);
+      dadosAtuais.mensagens = [];
+    }
+
+    const naoLidas = dadosAtuais.mensagens.filter((m) => m.status_leitura === "N").length;
+    const contagemEl = document.getElementById("contagemNaoLidas");
+    if (contagemEl) {
+      contagemEl.textContent = `${naoLidas} Não Lidas`;
+    }
+
+    const listaMensagens = document.getElementById("listaMensagens");
+    if (listaMensagens) {
+      listaMensagens.innerHTML = dadosAtuais.mensagens
+        .map(
+          (msg) => `
+            <div class="item-mensagem ${msg.status_leitura === "N" ? "nao-lida" : ""}" onclick="visualizarMensagem(${msg.id_mensagem})">
+                
+              <div class="avatar-mensagem">
+                ${msg.email_remetente?.charAt(0)?.toUpperCase() || '?'}
+              </div>
+
+              <div class="conteudo-mensagem">
+                <div class="cabecalho-mensagem">
+                  <span class="remetente-mensagem">${msg.email_remetente}</span>
+                  <span class="data-mensagem">${msg.data}</span>
+                </div>
+                <div class="assunto-mensagem">${msg.assunto}</div>
+                <div class="preview-mensagem">${msg.conteudo}</div>
+              </div>
             </div>
+          `
+        )
+        .join("");
+    }
 
-                          <div class="conteudo-mensagem">
-                  <div class="cabecalho-mensagem">
-                      <span class="remetente-mensagem">${msg.email_remetente}</span>
-                      <span class="data-mensagem">${msg.data}</span>
-                  </div>
-                  <div class="assunto-mensagem">${msg.assunto}</div>
-                  <div class="preview-mensagem">${msg.conteudo}</div>
-              </div>
-          </div>
-      `
-      )
-      .join("");
-
-  } catch (error) {
-    console.error("Erro ao carregar mensagens:", error);
-  }
+  } catch (error) {
+    console.error("Erro ao carregar mensagens:", error);
+    if (typeof mostrarNotificacao === "function") {
+      mostrarNotificacao("Erro ao carregar mensagens", "erro");
+    }
+  }
 }
 
 async function visualizarMensagem(id) {
+  if (!dadosAtuais || !Array.isArray(dadosAtuais.mensagens)) {
+    console.warn("dadosAtuais.mensagens não está disponível")
+    return
+  }
+  
   const msg = dadosAtuais.mensagens.find((m) => m.id_mensagem == id);
   if (!msg) return;
 
@@ -77,5 +110,15 @@ async function visualizarMensagem(id) {
   carregarMensagens(); 
 
   // Atualiza no banco (marcar como lida)
-  await axios.post("controllers/mensagens.php", { marcarLida: id });
+  try {
+    await fetch("controllers/mensagens.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ marcarLida: id }),
+    });
+  } catch (error) {
+    console.error("Erro ao marcar mensagem como lida:", error);
+  }
 }
