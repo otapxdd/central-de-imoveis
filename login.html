@@ -29,10 +29,10 @@
                 <button class="aba-login active" onclick="trocarAba('admin')">
                     <i class="fas fa-user-shield"></i> Administrador
                 </button>
-                <button class="aba-login" onclick="trocarAba('proprietario')">
+                <button class="aba-login" onclick="trocarAba('locador')">
                     <i class="fas fa-key"></i> Locador
                 </button>
-                <button class="aba-login" onclick="trocarAba('inquilino')">
+                <button class="aba-login" onclick="trocarAba('locatario')">
                     <i class="fas fa-user"></i> Locatário
                 </button>
             </div>
@@ -70,11 +70,11 @@
                 </div>
             </form>
 
-            <!-- Formulário Proprietário -->
-            <form id="form-proprietario" class="formulario-login" onsubmit="fazerLoginProprietario(event)">
-                <h3 class="titulo-formulario">Área do Proprietário</h3>
+            <!-- Formulário Locador -->
+            <form id="form-locador" class="formulario-login" onsubmit="fazerLoginLocador(event)">
+                <h3 class="titulo-formulario">Área do Locador</h3>
                 
-                <div class="mensagem-erro" id="erro-proprietario">
+                <div class="mensagem-erro" id="erro-locador">
                     <i class="fas fa-exclamation-circle"></i> Código do imóvel ou senha incorretos
                 </div>
 
@@ -87,15 +87,15 @@
                 </div>
 
                 <div class="grupo-input">
-                    <label for="senha-proprietario">Senha</label>
+                    <label for="senha-locador">Senha</label>
                     <div class="input-icone">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="senha-proprietario" class="input-login" placeholder="Digite sua senha" required>
+                        <input type="password" id="senha-locador" class="input-login" placeholder="Digite sua senha" required>
                     </div>
                 </div>
 
                 <button type="submit" class="btn-login">
-                    <i class="fas fa-sign-in-alt"></i> Acessar Área do Proprietário
+                    <i class="fas fa-sign-in-alt"></i> Acessar Área do Locador
                 </button>
 
                 <div class="link-ajuda">
@@ -103,11 +103,11 @@
                 </div>
             </form>
 
-            <!-- Formulário Inquilino -->
-            <form id="form-inquilino" class="formulario-login" onsubmit="fazerLoginInquilino(event)">
-                <h3 class="titulo-formulario">Área do Inquilino</h3>
+            <!-- Formulário Locatário -->
+            <form id="form-locatario" class="formulario-login" onsubmit="fazerLoginLocatario(event)">
+                <h3 class="titulo-formulario">Área do Locatário</h3>
                 
-                <div class="mensagem-erro" id="erro-inquilino">
+                <div class="mensagem-erro" id="erro-locatario">
                     <i class="fas fa-exclamation-circle"></i> Código do imóvel ou senha incorretos
                 </div>
 
@@ -120,15 +120,15 @@
                 </div>
 
                 <div class="grupo-input">
-                    <label for="senha-inquilino">Senha</label>
+                    <label for="senha-locatario">Senha</label>
                     <div class="input-icone">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="senha-inquilino" class="input-login" placeholder="Digite sua senha" required>
+                        <input type="password" id="senha-locatario" class="input-login" placeholder="Digite sua senha" required>
                     </div>
                 </div>
 
                 <button type="submit" class="btn-login">
-                    <i class="fas fa-sign-in-alt"></i> Acessar Área do Inquilino
+                    <i class="fas fa-sign-in-alt"></i> Acessar Área do Locatário
                 </button>
 
                 <div class="link-ajuda">
@@ -151,10 +151,10 @@
 
             if (tipo === 'admin') {
                 document.getElementById('form-admin').classList.add('active');
-            } else if (tipo === 'proprietario') {
-                document.getElementById('form-proprietario').classList.add('active');
+            } else if (tipo === 'locador') {
+                document.getElementById('form-locador').classList.add('active');
             } else {
-                document.getElementById('form-inquilino').classList.add('active');
+                document.getElementById('form-locatario').classList.add('active');
             }
 
             document.querySelectorAll('.mensagem-erro').forEach(msg => {
@@ -180,39 +180,39 @@
             }
         }
 
-        function fazerLoginProprietario(event) {
+        function fazerLoginLocador(event) {
             event.preventDefault();
             const codigo = document.getElementById('codigo-imovel-prop').value.toUpperCase();
-            const senha = document.getElementById('senha-proprietario').value;
+            const senha = document.getElementById('senha-locador').value;
 
-            if (codigo === 'IMV-001' && senha === 'proprietario123') {
+            if (codigo === 'IMV-001' && senha === 'locador123') {
                 const sessao = {
-                    tipo: 'proprietario',
+                    tipo: 'locador',
                     codigoImovel: codigo,
                     timestamp: new Date().getTime()
                 };
                 localStorage.setItem('sessao_central_imoveis', JSON.stringify(sessao));
                 window.location.href = 'locador.html';
             } else {
-                document.getElementById('erro-proprietario').classList.add('active');
+                document.getElementById('erro-locador').classList.add('active');
             }
         }
 
-        function fazerLoginInquilino(event) {
+        function fazerLoginLocatario(event) {
             event.preventDefault();
             const codigo = document.getElementById('codigo-imovel').value.toUpperCase();
-            const senha = document.getElementById('senha-inquilino').value;
+            const senha = document.getElementById('senha-locatario').value;
 
-            if (codigo === 'IMV-001' && senha === 'inquilino123') {
+            if (codigo === 'IMV-001' && senha === 'locatario123') {
                 const sessao = {
-                    tipo: 'inquilino',
+                    tipo: 'locatario',
                     codigoImovel: codigo,
                     timestamp: new Date().getTime()
                 };
                 localStorage.setItem('sessao_central_imoveis', JSON.stringify(sessao));
                 window.location.href = 'locatario.html';
             } else {
-                document.getElementById('erro-inquilino').classList.add('active');
+                document.getElementById('erro-locatario').classList.add('active');
             }
         }
 
@@ -226,9 +226,9 @@
                 if (agora - sessao.timestamp < umDia) {
                     if (sessao.tipo === 'admin') {
                         window.location.href = 'dashboard.html';
-                    } else if (sessao.tipo === 'proprietario') {
+                    } else if (sessao.tipo === 'locador') {
                         window.location.href = 'locador.html';
-                    } else if (sessao.tipo === 'inquilino') {
+                    } else if (sessao.tipo === 'locatario') {
                         window.location.href = 'locatario.html';
                     }
                 } else {

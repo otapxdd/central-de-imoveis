@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Área do Proprietário - Central de Imóveis</title>
-    <link rel="stylesheet" href="dashboard.css">
+    <title>Área do Locador - Central de Imóveis</title>
+    <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+    <!-- Loading styles (shared) -->
+    <link rel="stylesheet" href="css/loading.css">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -29,12 +31,15 @@
 <script src="js/init.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
 
+<!-- Authentication (logout / session helpers) -->
+<script src="auth.js"></script>
+
 <body>
     <aside class="barra-lateral" id="barraLateral">
         <div class="cabecalho-barra-lateral">
             <div class="logo">
                 <i class="fas fa-building"></i>
-                <span>Área do Proprietário</span>
+                <span>Área do Locador</span>
             </div>
             <button class="alternar-barra-lateral" id="alternarBarraLateral">
                 <i class="fas fa-bars"></i>
@@ -46,9 +51,9 @@
                 <i class="fas fa-home"></i>
                 <span>Meu Imóvel</span>
             </a>
-            <a href="#inquilino" class="item-navegacao" data-pagina="inquilino">
+            <a href="#locatario" class="item-navegacao" data-pagina="locatario">
                 <i class="fas fa-user"></i>
-                <span>Inquilino</span>
+                <span>Locatário</span>
             </a>
             <a href="#financeiro" class="item-navegacao" data-pagina="financeiro">
                 <i class="fas fa-dollar-sign"></i>
@@ -86,8 +91,8 @@
                     <i class="fas fa-moon"></i>
                 </button>
                 <div class="menu-usuario">
-                    <img src="/placeholder.svg?height=40&width=40" alt="Proprietário" class="avatar-usuario">
-                    <span class="nome-usuario" id="nomeProprietario">Locador</span>
+                    <img src="/placeholder.svg?height=40&width=40" alt="Locador" class="avatar-usuario">
+                    <span class="nome-usuario" id="nomeLocador">Locador</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
             </div>
@@ -174,10 +179,10 @@
                 </div>
             </section>
 
-            <!-- Página Inquilino -->
-            <section id="pagina-inquilino" class="conteudo-pagina">
+            <!-- Página Locatário -->
+            <section id="pagina-locatario" class="conteudo-pagina">
                 <div class="cabecalho-pagina">
-                    <h2>Dados do Inquilino</h2>
+                    <h2>Dados do Locatário</h2>
                 </div>
 
                 <div class="cartao-dashboard">
@@ -494,7 +499,7 @@
 
                 <div class="container-configuracoes">
                     <div class="cartao-configuracoes">
-                        <h3>Dados do Proprietário</h3>
+                        <h3>Dados do Locador</h3>
                         <form class="formulario-configuracoes">
                             <div class="grupo-formulario">
                                 <label>Nome Completo</label>

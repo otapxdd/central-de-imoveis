@@ -56,6 +56,10 @@ function navegarParaPagina(pagina) {
         if (typeof inicializarInstanciaDoMapa === "function") inicializarInstanciaDoMapa()
       }
       if (typeof carregarMapa === "function") carregarMapa()
+      // Popular filtro de cidade do mapa se ainda não foi populado
+      if (typeof popularFiltroMapaCidade === "function") {
+        popularFiltroMapaCidade()
+      }
       break
     case "categorias":
       if (typeof carregarCategorias === "function") carregarCategorias()
@@ -103,6 +107,9 @@ function configurarEventos() {
 
   // Configurar eventos dos filtros de imóveis
   configurarFiltrosImoveis()
+  
+  // Configurar eventos dos filtros do mapa
+  configurarFiltrosMapa()
 }
 
 function configurarFiltrosImoveis() {
@@ -125,5 +132,18 @@ function configurarFiltrosImoveis() {
 
   if (buscarImovel && typeof filtrarImoveis === "function") {
     buscarImovel.addEventListener("input", filtrarImoveis)
+  }
+}
+
+function configurarFiltrosMapa() {
+  const filtroMapaCidade = document.getElementById("filtroMapaCidade")
+  const filtroMapaTipo = document.getElementById("filtroMapaTipo")
+
+  if (filtroMapaCidade && typeof filtrarImoveisMapa === "function") {
+    filtroMapaCidade.addEventListener("change", filtrarImoveisMapa)
+  }
+
+  if (filtroMapaTipo && typeof filtrarImoveisMapa === "function") {
+    filtroMapaTipo.addEventListener("change", filtrarImoveisMapa)
   }
 }

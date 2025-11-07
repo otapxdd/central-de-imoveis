@@ -433,6 +433,7 @@ const dadosAtuais = {
   mensagens: [],
   agendamentos: [],
   categorias: [],
+  cidades: [],
 }
 
 // Garante que dadosAtuais esteja no escopo global

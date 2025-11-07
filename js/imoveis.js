@@ -55,8 +55,7 @@ function renderizarTabelaImoveis(imoveis) {
 
 async function popularFiltros() {
   await popularFiltroTipo()
-  
-  popularFiltroCidade()
+  // popularFiltroCidade() será chamado após carregar cidades da API
 }
 
 async function popularFiltroTipo() {
@@ -106,37 +105,125 @@ async function popularFiltroTipo() {
   }
 }
 
-function popularFiltroCidade() {
+async function popularFiltrosCidade() {
+  // Popular filtro de cidades da página de imóveis
+  await popularFiltroCidade()
+  
+  // Popular filtro de cidades do mapa
+  await popularFiltroMapaCidade()
+}
+
+async function popularFiltroCidade() {
   const filtroCidade = document.getElementById("filtroCidade")
-  if (!filtroCidade || !dadosAtuais.imoveis || !Array.isArray(dadosAtuais.imoveis)) {
-    return
-  }
+  if (!filtroCidade) return
 
-  // Salva o valor atual se houver
-  const valorAtual = filtroCidade.value
+  try {
+    // Tenta usar cidades da API primeiro
+    if (dadosAtuais.cidades && Array.isArray(dadosAtuais.cidades) && dadosAtuais.cidades.length > 0) {
+      const valorAtual = filtroCidade.value
+      filtroCidade.innerHTML = '<option value="">Todas as Cidades</option>'
 
-  // Extrai cidades únicas dos imóveis
-  const cidades = [...new Set(dadosAtuais.imoveis.map((i) => i.cidade).filter(Boolean))].sort()
+      dadosAtuais.cidades.forEach((cidade) => {
+        const option = document.createElement("option")
+        option.value = cidade.nome
+        option.textContent = cidade.nome
+        option.dataset.id = cidade.id
+        filtroCidade.appendChild(option)
+      })
 
-  // Limpa opções exceto a primeira (Todas as Cidades)
-  filtroCidade.innerHTML = '<option value="">Todas as Cidades</option>'
-
-  // Adiciona as cidades encontradas
-  cidades.forEach((cidade) => {
-    const option = document.createElement("option")
-    option.value = cidade
-    option.textContent = cidade
-    filtroCidade.appendChild(option)
-  })
-
-  // Restaura o valor anterior se ainda existir
-  if (valorAtual) {
-    const opcaoExistente = Array.from(filtroCidade.options).find(
-      (opt) => opt.value === valorAtual
-    )
-    if (opcaoExistente) {
-      filtroCidade.value = valorAtual
+      if (valorAtual) {
+        const opcaoExistente = Array.from(filtroCidade.options).find(
+          (opt) => opt.value === valorAtual
+        )
+        if (opcaoExistente) {
+          filtroCidade.value = valorAtual
+        }
+      }
+      return
     }
+
+    // Fallback: extrai cidades dos imóveis se a API não estiver disponível
+    if (dadosAtuais.imoveis && Array.isArray(dadosAtuais.imoveis)) {
+      const valorAtual = filtroCidade.value
+      const cidades = [...new Set(dadosAtuais.imoveis.map((i) => i.cidade).filter(Boolean))].sort()
+
+      filtroCidade.innerHTML = '<option value="">Todas as Cidades</option>'
+
+      cidades.forEach((cidade) => {
+        const option = document.createElement("option")
+        option.value = cidade
+        option.textContent = cidade
+        filtroCidade.appendChild(option)
+      })
+
+      if (valorAtual) {
+        const opcaoExistente = Array.from(filtroCidade.options).find(
+          (opt) => opt.value === valorAtual
+        )
+        if (opcaoExistente) {
+          filtroCidade.value = valorAtual
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao popular filtro de cidade:", error)
+  }
+}
+
+async function popularFiltroMapaCidade() {
+  const filtroMapaCidade = document.getElementById("filtroMapaCidade")
+  if (!filtroMapaCidade) return
+
+  try {
+    // Tenta usar cidades da API primeiro
+    if (dadosAtuais.cidades && Array.isArray(dadosAtuais.cidades) && dadosAtuais.cidades.length > 0) {
+      const valorAtual = filtroMapaCidade.value
+      filtroMapaCidade.innerHTML = '<option value="">Todas as Cidades</option>'
+
+      dadosAtuais.cidades.forEach((cidade) => {
+        const option = document.createElement("option")
+        option.value = cidade.nome
+        option.textContent = cidade.nome
+        option.dataset.id = cidade.id
+        filtroMapaCidade.appendChild(option)
+      })
+
+      if (valorAtual) {
+        const opcaoExistente = Array.from(filtroMapaCidade.options).find(
+          (opt) => opt.value === valorAtual
+        )
+        if (opcaoExistente) {
+          filtroMapaCidade.value = valorAtual
+        }
+      }
+      return
+    }
+
+    // Fallback: extrai cidades dos imóveis se a API não estiver disponível
+    if (dadosAtuais.imoveis && Array.isArray(dadosAtuais.imoveis)) {
+      const valorAtual = filtroMapaCidade.value
+      const cidades = [...new Set(dadosAtuais.imoveis.map((i) => i.cidade).filter(Boolean))].sort()
+
+      filtroMapaCidade.innerHTML = '<option value="">Todas as Cidades</option>'
+
+      cidades.forEach((cidade) => {
+        const option = document.createElement("option")
+        option.value = cidade
+        option.textContent = cidade
+        filtroMapaCidade.appendChild(option)
+      })
+
+      if (valorAtual) {
+        const opcaoExistente = Array.from(filtroMapaCidade.options).find(
+          (opt) => opt.value === valorAtual
+        )
+        if (opcaoExistente) {
+          filtroMapaCidade.value = valorAtual
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao popular filtro de cidade do mapa:", error)
   }
 }
 
@@ -195,7 +282,9 @@ function atualizarImovelLocalmente(id, novosDados = {}) {
 
 function atualizarVisoesDeImoveis() {
   // Atualiza os filtros de cidade quando os imóveis mudam
-  popularFiltroCidade()
+  if (typeof popularFiltrosCidade === "function") {
+    popularFiltrosCidade()
+  }
   
   if (typeof filtrarImoveis === "function") {
     filtrarImoveis()

@@ -134,7 +134,6 @@ try {
         imagedestroy($temp);
     }
 
-    // Upload de fotos
     if (isset($_FILES['fotos'])) {
 
         $uploadDir = dirname(__DIR__) . '/imagens/imoveis/';
@@ -150,10 +149,17 @@ try {
         $opacidade = 35;
         $proporcao_maxima = 0.4;
 
+        $tiposPermitidos = ['jpg', 'jpeg', 'png', 'webp'];
+        $tamanhoMaximo = 2 * 1024 * 1024;
+
         foreach ($_FILES['fotos']['name'] as $key => $name) {
 
             if ($_FILES['fotos']['error'][$key] !== UPLOAD_ERR_OK) {
                 continue;
+            }
+
+            if ($_FILES['fotos']['size'][$key] > $tamanhoMaximo) {
+                continue; 
             }
 
             $tmp_name = $_FILES['fotos']['tmp_name'][$key];
@@ -161,14 +167,23 @@ try {
             $fileName = $id_imovel . '_' . uniqid() . '.' . $fileExtension;
             $filePath = $uploadDir . $fileName;
 
-
-            if (!in_array($fileExtension, ['jpg', 'jpeg', 'png'])) {
+            if (!in_array($fileExtension, $tiposPermitidos)) {
                 continue;
             }
 
-            $original = ($fileExtension === 'png')
-                ? @imagecreatefrompng($tmp_name)
-                : @imagecreatefromjpeg($tmp_name);
+            $original = null;
+            if ($fileExtension === 'png') {
+                $original = @imagecreatefrompng($tmp_name);
+            } elseif ($fileExtension === 'webp') {
+                if (function_exists('imagecreatefromwebp')) {
+                    $original = @imagecreatefromwebp($tmp_name);
+                } else {
+                    continue;
+                }
+            } else {
+                // JPG ou JPEG
+                $original = @imagecreatefromjpeg($tmp_name);
+            }
 
             if (!$original) {
                 continue;

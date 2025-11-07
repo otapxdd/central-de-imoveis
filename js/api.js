@@ -5,16 +5,13 @@
 
 // Usa utilitários e dados definidos em outros módulos
 
-/**
- * Carrega todos os dados iniciais da aplicação
- * Faz requisições paralelas para melhor performance
- */
 async function carregarDadosIniciais() {
   const endpoints = [
     { key: "imoveis", url: "api/imoveis.php", mensagem: "Carregando imóveis..." },
     { key: "usuarios", url: "api/usuarios.php", mensagem: "Carregando usuários..." },
     { key: "mensagens", url: "api/mensagens.php", mensagem: "Carregando mensagens..." },
     { key: "categorias", url: "api/categorias.php", mensagem: "Carregando categorias..." },
+    { key: "cidades", url: "api/cidades.php", mensagem: "Carregando cidades..." },
   ]
 
   mostrarLoading("Carregando dados da aplicação...")
@@ -56,13 +53,16 @@ async function carregarDadosIniciais() {
 
     await Promise.all(processamentoPromises)
 
-    // Aguarda um pouco para garantir que os dados foram processados
     setTimeout(() => {
       carregarDashboard()
       carregarImoveis()
       carregarAprovacao()
       // carregarUsuarios()
       carregarMensagens()
+      // Popular filtros de cidade após carregar dados
+      if (typeof popularFiltrosCidade === "function") {
+        popularFiltrosCidade()
+      }
       ocultarLoading()
     }, 200)
   } catch (error) {
@@ -74,6 +74,10 @@ async function carregarDadosIniciais() {
     carregarAprovacao()
     carregarUsuarios()
     carregarMensagens()
+    // Popular filtros de cidade após carregar dados
+    if (typeof popularFiltrosCidade === "function") {
+      popularFiltrosCidade()
+    }
     ocultarLoading()
   }
 }

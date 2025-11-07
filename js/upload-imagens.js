@@ -21,13 +21,39 @@ function inicializarUploadImagens() {
   })
 
   function processFiles(newFiles) {
+    const tiposPermitidos = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
+    const tamanhoMaximo = 2 * 1024 * 1024 // 2MB em bytes
+
     ;[...newFiles].forEach((file) => {
-      if (file.type.startsWith("image/")) {
-        filesToUpload.items.add(file)
-        createPreview(file)
-      } else {
-        console.warn(`O arquivo "${file.name}" não é uma imagem e foi ignorado.`)
+      // Valida tipo de arquivo
+      if (!tiposPermitidos.includes(file.type)) {
+        if (typeof mostrarNotificacao === "function") {
+          mostrarNotificacao(
+            `O arquivo "${file.name}" não é um formato permitido. Use PNG, JPG ou WebP.`,
+            "erro"
+          )
+        } else {
+          alert(`O arquivo "${file.name}" não é um formato permitido. Use PNG, JPG ou WebP.`)
+        }
+        return
       }
+
+      // Valida tamanho do arquivo
+      if (file.size > tamanhoMaximo) {
+        const tamanhoMB = (file.size / (1024 * 1024)).toFixed(2)
+        if (typeof mostrarNotificacao === "function") {
+          mostrarNotificacao(
+            `O arquivo "${file.name}" é muito grande (${tamanhoMB}MB). Tamanho máximo: 2MB.`,
+            "erro"
+          )
+        } else {
+          alert(`O arquivo "${file.name}" é muito grande (${tamanhoMB}MB). Tamanho máximo: 2MB.`)
+        }
+        return
+      }
+
+      filesToUpload.items.add(file)
+      createPreview(file)
     })
     fileInput.files = filesToUpload.files
   }
