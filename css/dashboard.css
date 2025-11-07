@@ -1559,3 +1559,34 @@ body {
     opacity: 0.2;
     cursor: not-allowed;
 }
+
+.form-group-motivo {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.form-group-motivo label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.form-group-motivo textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  box-sizing: border-box; 
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.form-group-motivo textarea:focus {
+  outline: none;
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}

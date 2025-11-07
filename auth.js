@@ -23,15 +23,12 @@ function verificarAutenticacao(tipoRequerido) {
     return
   }
 
-  // Verificar se o tipo de usuário está correto
   if (sessao.tipo !== tipoRequerido) {
-    // Tipo de usuário incorreto, redirecionar para a página correta
     if (sessao.tipo === "admin") {
       window.location.href = "index.html"
-    } else if (sessao.tipo === "inquilino") {
-      window.location.href = "inquilino.html"
+    } else if (sessao.tipo === "locatario") {
+      window.location.href = "locatario.html"
     } else {
-      // Sessão inválida
       localStorage.removeItem("sessao_central_imoveis")
       window.location.href = "login.html"
     }

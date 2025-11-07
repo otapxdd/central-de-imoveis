@@ -27,7 +27,7 @@ function fecharModal(idModal) {
  * @param {string} 
  * @param {Function} 
  */
-function mostrarModalConfirmacao(titulo, mensagem, aoConfirmar) {
+function mostrarModalConfirmacao(titulo, mensagemHtml, aoConfirmar) {
   const tituloEl = document.getElementById("tituloModalConfirmacao")
   const corpoEl = document.getElementById("corpoModalConfirmacao")
   const btnConfirmar = document.getElementById("btnModalConfirmacao")
@@ -38,19 +38,15 @@ function mostrarModalConfirmacao(titulo, mensagem, aoConfirmar) {
   }
 
   tituloEl.textContent = titulo
-  corpoEl.innerHTML = `<p>${mensagem}</p>`
+  corpoEl.innerHTML = mensagemHtml
 
   const novoBtn = btnConfirmar.cloneNode(true)
   btnConfirmar.parentNode.replaceChild(novoBtn, btnConfirmar)
 
-  novoBtn.onclick = () => {
-    aoConfirmar()
-    fecharModal("modalConfirmacao")
-  }
+  novoBtn.onclick = aoConfirmar 
 
   abrirModal("modalConfirmacao")
 }
-
 /**
  * @param {string} 
  * @param {string} 

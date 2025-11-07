@@ -200,17 +200,9 @@
                     </select>
                     <select id="filtroTipo" class="select-filtro">
                         <option value="">Todos os Tipos</option>
-                        <option value="casa">Casa</option>
-                        <option value="apartamento">Apartamento</option>
-                        <option value="terreno">Terreno</option>
-                        <option value="comercial">Comercial</option>
                     </select>
                     <select id="filtroCidade" class="select-filtro">
                         <option value="">Todas as Cidades</option>
-                        <option value="São Paulo">São Paulo</option>
-                        <option value="Rio de Janeiro">Rio de Janeiro</option>
-                        <option value="Campinas">Campinas</option>
-                        <option value="Santos">Santos</option>
                     </select>
                     <input type="text" id="buscarImovel" class="input-busca" placeholder="Buscar por nome ou código...">
                 </div>
@@ -221,7 +213,7 @@
                             <tr>
                                 <th>Código</th>
                                 <th>Nome</th>
-                                <th>Proprietário</th>
+                                <th>Locador</th>
                                 <th>Tipo</th>
                                 <th>Cidade</th>
                                 <th>Valor</th>
@@ -254,20 +246,20 @@
                             </div>
 
                             <div class="grid-span-2">
-                                <label for="proprietario-nome">Nome do Proprietário</label>
-                                <input type="text" id="proprietario-nome" required name="proprietario_nome"
+                                <label for="proprietario-nome">Nome do Locador</label>
+                                <input type="text" id="locador-nome" required name="locador_nome"
                                     placeholder="Nome do cliente">
                             </div>
 
                             <div>
-                                <label for="proprietario-email">E-mail do Proprietário</label>
-                                <input type="email" id="proprietario-email" required name="proprietario_email"
+                                <label for="locador-email">E-mail do Locador</label>
+                                <input type="email" id="locador-email" required name="locador_email"
                                     placeholder="email@cliente.com">
                             </div>
 
                             <div>
-                                <label for="proprietario-telefone">Telefone do Proprietário</label>
-                                <input type="tel" id="proprietario-telefone" required name="proprietario_telefone"
+                                <label for="locador-telefone">Telefone do Locador</label>
+                                <input type="tel" id="locador-telefone" required name="locador_telefone"
                                     placeholder="(11) 99999-9999">
                             </div>
 

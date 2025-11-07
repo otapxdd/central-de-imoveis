@@ -514,7 +514,7 @@ function visualizarImovel(id) {
   } else {
     htmlGaleria = `
             <div class="galeria-modal">
-                <img src="/placeholder.svg?height=200&width=300" alt="Imóvel sem fotos">
+                <img src="https://centraldeimoveisrp.com.br/portal/imagem/img_default/img_default.jpg" alt="Imóvel sem fotos">
             </div>
         `;
   }
@@ -533,7 +533,7 @@ function visualizarImovel(id) {
         <span class="valor-info-modal">${imovel.nome}</span>
       </div>
       <div class="item-info-modal">
-        <span class="label-info-modal">Proprietário:</span>
+        <span class="label-info-modal">Locador:</span>
         <span class="valor-info-modal">${imovel.proprietario}</span>
       </div>
       <div class="item-info-modal">
@@ -619,39 +619,70 @@ function aprovarImovel(id) {
 }
 
 function reprovarImovel(id) {
-  mostrarModalConfirmacao(
-    "Reprovar Imóvel",
-    "Tem certeza que deseja reprovar este imóvel? Esta ação pode ser revertida posteriormente.",
-    async () => {
-      try {
-        const response = await fetchComLoading("api/reprovarImovel.php", {
+const mensagemHtml = `
+    <p>Tem certeza que deseja reprovar este imóvel? Esta ação pode ser revertida posteriormente.</p>
+    
+    <div class="form-group-motivo">
+        <label for="motivoReprovacaoInput">Motivo da Reprovação:</label>
+        <textarea id="motivoReprovacaoInput" rows="3" placeholder="Digite o motivo..."></textarea>
+    </div>
+  `
+  
+  const callbackConfirmacao = async () => {
+    const motivoInput = document.getElementById("motivoReprovacaoInput")
+    const motivo = motivoInput ? motivoInput.value.trim() : ""
+
+    if (!motivo) {
+      mostrarNotificacao("O motivo da reprovação é obrigatório.", "erro") 
+      if (motivoInput) motivoInput.focus()
+      return
+    }
+
+    try {
+      const response = await fetchComLoading(
+        "api/reprovarImovel.php",
+        {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ id: id }),
-        }, "Reprovando imóvel...")
+          body: JSON.stringify({ 
+            id: id, 
+            motivo: motivo
+          }), 
+        },
+        "Reprovando imóvel...",
+      )
 
-        const resultado = await response.json()
+      const resultado = await response.json()
 
-        if (!response.ok) {
-          throw new Error(resultado.erro || "Erro ao conectar com o servidor.")
-        }
-
-        const atualizouLocal = atualizarImovelLocalmente(id, { status: "reprovado" })
-
-        if (atualizouLocal) {
-          atualizarVisoesDeImoveis()
-        } else if (typeof sincronizarImoveisDoServidor === "function") {
-          sincronizarImoveisDoServidor()
-        }
-
-        const mensagemSucesso = resultado.mensagem || "Imóvel reprovado"
-        mostrarNotificacao(mensagemSucesso, "aviso")
-      } catch (error) {
-        console.error("Erro ao reprovar imóvel:", error)
-        mostrarNotificacao(`Erro ao reprovar: ${error.message}`, "erro")
+      if (!response.ok) {
+        throw new Error(resultado.erro || "Erro ao conectar com o servidor.")
       }
-    },
+      
+      fecharModal("modalConfirmacao")
+
+      const atualizouLocal = atualizarImovelLocalmente(id, {
+        status: "reprovado",
+      })
+
+      if (atualizouLocal) {
+        atualizarVisoesDeImoveis()
+      } else if (typeof sincronizarImoveisDoServidor === "function") {
+        sincronizarImoveisDoServidor()
+      }
+
+      const mensagemSucesso = resultado.mensagem || "Imóvel reprovado"
+      mostrarNotificacao(mensagemSucesso, "aviso")
+
+    } catch (error) {
+      console.error("Erro ao reprovar imóvel:", error)
+      mostrarNotificacao(`Erro ao reprovar: ${error.message}`, "erro")
+    }
+  }
+  mostrarModalConfirmacao(
+    "Reprovar Imóvel",
+    mensagemHtml,
+    callbackConfirmacao,
   )
 }

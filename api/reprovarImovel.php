@@ -12,12 +12,19 @@ if (empty($data['id'])) {
 }
 
 $id_imovel = $data['id'];
+$motivo_reprovacao = isset($data['motivo']) ? trim($data['motivo']) : '';
+
+if (empty($motivo_reprovacao)) {
+    http_response_code(400);
+    echo json_encode(['erro' => 'O motivo da reprovação é obrigatório.']);
+    exit;
+}
 
 try {
-    $sql = "UPDATE imoveis SET status = 'reprovado' WHERE id_imovel = ?";
+    $sql = "UPDATE imoveis SET status = 'reprovado', motivo_reprovacao = ? WHERE id_imovel = ?";
     $stmt = $pdo->prepare($sql);
     
-    $stmt->execute([$id_imovel]);
+    $stmt->execute([$motivo_reprovacao, $id_imovel]);
 
     if ($stmt->rowCount() > 0) {
         echo json_encode(['sucesso' => true, 'mensagem' => 'Imóvel reprovado com sucesso!']);
