@@ -385,7 +385,7 @@ function carregarAprovacao() {
       } else {
         sliderHtml = `
           <div class="imagem-slider-container">
-            <img src="/placeholder.svg?height=200&width=400" alt="Sem foto" class="slider-imagem">
+            <img src="https://centraldeimoveisrp.com.br/portal/imagem/img_default/img_default.jpg" alt="Sem foto" class="slider-imagem">
           </div>
           `
       }
@@ -627,7 +627,7 @@ const mensagemHtml = `
         <textarea id="motivoReprovacaoInput" rows="3" placeholder="Digite o motivo..."></textarea>
     </div>
   `
-  
+
   const callbackConfirmacao = async () => {
     const motivoInput = document.getElementById("motivoReprovacaoInput")
     const motivo = motivoInput ? motivoInput.value.trim() : ""

@@ -1,40 +1,69 @@
 <?php
-require 'conexao.php';
-
 header('Content-Type: application/json');
 
-$data = json_decode(file_get_contents('php://input'), true);
+class Imoveis {
+    private $pdo;
 
-if (empty($data['id'])) {
-    http_response_code(400);
-    echo json_encode(['erro' => 'ID do imóvel não fornecido.']);
-    exit;
-}
+    public function __construct(PDO $pdo) {
+        $this->pdo = $pdo;
+    }
 
-$id_imovel = $data['id'];
-$motivo_reprovacao = isset($data['motivo']) ? trim($data['motivo']) : '';
+    /**
+     * @param int $id_imovel
+     * @param string $motivo_reprovacao
+     * @return array
+     * @throws \PDOException
+     */
+    public function reprovar(int $id_imovel, string $motivo_reprovacao): array {
+        if (empty($motivo_reprovacao)) {
+            throw new \InvalidArgumentException('O motivo da reprovação é obrigatório.');
+        }
 
-if (empty($motivo_reprovacao)) {
-    http_response_code(400);
-    echo json_encode(['erro' => 'O motivo da reprovação é obrigatório.']);
-    exit;
+        $sql = "UPDATE imoveis SET status = 'reprovado', motivo_reprovacao = ? WHERE id_imovel = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$motivo_reprovacao, $id_imovel]);
+
+        if ($stmt->rowCount() > 0) {
+            return [
+                'sucesso' => true, 
+                'mensagem' => 'Imóvel reprovado com sucesso!'
+            ];
+        } else {
+            throw new \RuntimeException('Imóvel não encontrado ou já estava reprovado.');
+        }
+    }
 }
 
 try {
-    $sql = "UPDATE imoveis SET status = 'reprovado', motivo_reprovacao = ? WHERE id_imovel = ?";
-    $stmt = $pdo->prepare($sql);
+    require_once 'conexao.php';
     
-    $stmt->execute([$motivo_reprovacao, $id_imovel]);
+    $data = json_decode(file_get_contents('php://input'), true);
 
-    if ($stmt->rowCount() > 0) {
-        echo json_encode(['sucesso' => true, 'mensagem' => 'Imóvel reprovado com sucesso!']);
-    } else {
-        http_response_code(404);
-        echo json_encode(['erro' => 'Imóvel não encontrado ou já estava reprovado.']);
+    if (empty($data['id'])) {
+        http_response_code(400);
+        echo json_encode(['erro' => 'ID do imóvel não fornecido.']);
+        exit;
     }
 
+    $gerenciadorImoveis = new Imoveis($pdo);
+
+    $resultado = $gerenciadorImoveis->reprovar(
+        intval($data['id']),
+        isset($data['motivo']) ? trim($data['motivo']) : ''
+    );
+
+    echo json_encode($resultado);
+
+} catch (\InvalidArgumentException $e) {
+    http_response_code(400);
+    echo json_encode(['erro' => $e->getMessage()]);
+} catch (\RuntimeException $e) {
+    http_response_code(404);
+    echo json_encode(['erro' => $e->getMessage()]);
 } catch (\PDOException $e) {
     http_response_code(500);
-    echo json_encode(['erro' => 'Erro ao reprovar imóvel: ' . $e->getMessage()]);
+    echo json_encode(['erro' => 'Erro de banco de dados: ' . $e->getMessage()]);
+} catch (\Exception $e) {
+    http_response_code(500);
+    echo json_encode(['erro' => 'Erro inesperado: ' . $e->getMessage()]);
 }
-?>

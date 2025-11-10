@@ -56,7 +56,6 @@ function navegarParaPagina(pagina) {
         if (typeof inicializarInstanciaDoMapa === "function") inicializarInstanciaDoMapa()
       }
       if (typeof carregarMapa === "function") carregarMapa()
-      // Popular filtro de cidade do mapa se ainda não foi populado
       if (typeof popularFiltroMapaCidade === "function") {
         popularFiltroMapaCidade()
       }
@@ -89,7 +88,6 @@ function inicializarAplicacao() {
   })
 }
 
-// Configura eventos básicos da UI (menu mobile e tema)
 function configurarEventos() {
   const alternarMenuMobile = document.getElementById("alternarMenuMobile")
   const barraLateral = document.getElementById("barraLateral")
@@ -105,10 +103,8 @@ function configurarEventos() {
     alternarTema.addEventListener("click", alternarTemaEscuro)
   }
 
-  // Configurar eventos dos filtros de imóveis
   configurarFiltrosImoveis()
   
-  // Configurar eventos dos filtros do mapa
   configurarFiltrosMapa()
 }
 
